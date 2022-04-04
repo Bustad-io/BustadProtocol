@@ -1,0 +1,14 @@
+{
+  "name": "bustadprotocol",
+  "version": "1.0.0",
+  "description": "Smart contracts and tooling for Bustad protocol",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rina Andriana",
+  "license": "ISC",
+  "devDependencies": {
+    "hardhat": "^2.9.2"
+  }
+}
