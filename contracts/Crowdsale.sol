@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./BustadToken.sol";
-import "./Swap.sol";
+import "./interfaces/ISwap.sol";
 
 import "hardhat/console.sol";
 
@@ -20,9 +20,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl {
     using SafeERC20 for IERC20Extended;
 
     BustadToken public bustadToken;
-    Swap public swap;
-    IERC20 public constant DAI =
-        IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    ISwap public swap;    
 
     address payable public wallet;
     address public treasury;
@@ -49,7 +47,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl {
         address _treasury,
         address _swapToToken,
         BustadToken _bustadToken,
-        Swap _swap,
+        ISwap _swap,
         uint256 _initialRate,
         address[] memory _acceptedStableCoins
     ) {

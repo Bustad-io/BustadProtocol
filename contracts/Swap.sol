@@ -5,10 +5,9 @@ import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "./external/interfaces/IWETH9.sol";
+import "./interfaces/ISwap.sol";
 
-import "hardhat/console.sol";
-
-contract Swap {
+contract Swap is ISwap {
     ISwapRouter public immutable swapRouter;
     IQuoter public immutable quoter;
     address beneficiary;

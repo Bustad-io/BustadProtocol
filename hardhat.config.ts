@@ -28,12 +28,8 @@ const accounts = [
 ];
 
 const config: HardhatUserConfig = {
-  
   solidity: {
-    compilers: [
-      {
-        version: "0.8.0",
-      },
+    compilers: [      
       {
         version: "0.8.9",
       }
@@ -58,8 +54,8 @@ const config: HardhatUserConfig = {
       chainId: 1337,
       forking: {
         url: process.env.FORK_URI !== undefined ? process.env.FORK_URI : "",
-        // blockNumber: 14306438,
-        blockNumber: 14447653,
+        blockNumber: 14306438,
+        // blockNumber: 14447653,
       },
       accounts: accounts.map((acc) => ({
         privateKey: acc,

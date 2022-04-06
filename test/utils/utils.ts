@@ -5,7 +5,7 @@ export const resetTokenBalance = async (
   signer: SignerWithAddress,
   tokenAddress: string
 ) => {
-  const Token = await ethers.getContractFactory("Token", signer);
+  const Token = await ethers.getContractFactory("ERC20", signer);
   const token = await Token.attach(tokenAddress);
 
   const randomReceiver = ethers.Wallet.createRandom();
@@ -20,7 +20,7 @@ export const transferTotalBalance = async (
   to: string,
   tokenAddress: string
 ) => {
-  const token = await ethers.getContractAt("Token", tokenAddress, from);
+  const token = await ethers.getContractAt("ERC20", tokenAddress, from);
   const balance = await token.balanceOf(from.address);
   const tx = await token.transfer(to, balance);
   await tx.wait();
