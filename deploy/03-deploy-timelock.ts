@@ -18,4 +18,4 @@ const deployTimelock: DeployFunction = async function (
 };
 
 export default deployTimelock;
-deployTimelock.tags = ["Timelock"];
+deployTimelock.tags = ["Timelock", "Governance"];

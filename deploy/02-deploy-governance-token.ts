@@ -19,4 +19,4 @@ const deployGovernanceToken: DeployFunction = async function (
 };
 
 export default deployGovernanceToken;
-deployGovernanceToken.tags = ["GovernanceToken"];
+deployGovernanceToken.tags = ["GovernanceToken", "Governance", "Minting"];

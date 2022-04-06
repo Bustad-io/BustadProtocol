@@ -36,4 +36,4 @@ const deployToken: DeployFunction = async function (
 };
 
 export default deployToken;
-deployToken.tags = ["BustadToken"];
+deployToken.tags = ["BustadToken", "Minting"];

@@ -23,4 +23,4 @@ const deploySwap: DeployFunction = async function (
 };
 
 export default deploySwap;
-deploySwap.tags = ["Swap"];
+deploySwap.tags = ["Swap", "Minting"];

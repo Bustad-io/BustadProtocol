@@ -44,4 +44,4 @@ const deployTreasury: DeployFunction = async function (
 };
 
 export default deployTreasury;
-deployTreasury.tags = ["Treasury"];
+deployTreasury.tags = ["Treasury", "Minting"];

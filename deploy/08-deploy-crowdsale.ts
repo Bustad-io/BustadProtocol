@@ -46,4 +46,4 @@ const deployCrowdsale: DeployFunction = async function (
 };
 
 export default deployCrowdsale;
-deployCrowdsale.tags = ["Crowdsale"];
+deployCrowdsale.tags = ["Crowdsale", "Minting"];
