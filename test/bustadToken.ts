@@ -6,48 +6,56 @@ import {
   TOKEN_SYMBOL,
   TOKEN_TRANSFER_FEE,
   INITIAL_TOKEN_AMOUNT,
+  TOKEN_DECIMALS,
 } from "../helper-hardhat-config";
 import { BustadToken } from "../typechain";
 import { fromEther, toEther } from "../utils/format";
 
 describe("BustadToken", function () {
   let bustadToken: BustadToken;
+  let admin: string;
 
   beforeEach(async () => {
-    const { admin } = await getNamedAccounts();
+    ({ admin } = await getNamedAccounts());
 
     await deployments.fixture(["BustadToken"]);
     bustadToken = await ethers.getContract("BustadToken", admin);
   });
 
-  it("Should get correct initial parameters", async function () {
-    await bustadToken.deployed();
-
-    expect(await bustadToken.name()).to.equal(TOKEN_NAME);
-    expect(await bustadToken.symbol()).to.equal(TOKEN_SYMBOL);
-    expect(await bustadToken.decimals()).to.equal(18);
-    expect(await bustadToken.totalSupply()).to.equal(
-      ethers.utils.parseEther(INITIAL_TOKEN_AMOUNT.toString())
-    );
+  describe("Deployment", function() {
+    it("Should get correct initial parameters", async function () {
+      expect(await bustadToken.name()).to.equal(TOKEN_NAME);
+      expect(await bustadToken.symbol()).to.equal(TOKEN_SYMBOL);
+      expect(await bustadToken.decimals()).to.equal(TOKEN_DECIMALS);
+      expect(await bustadToken.totalSupply()).to.equal(
+        fromEther(INITIAL_TOKEN_AMOUNT)
+      );
+    });
+    it("Should mint correct initial supply to admin", async function() {
+      const adminBalance = await bustadToken.balanceOf(admin);
+      expect(adminBalance).to.equal(fromEther(INITIAL_TOKEN_AMOUNT));
+    });
   });
 
-  it("Should mint correct amount to beneficiary", async () => {
-    const { admin, mockUser } = await getNamedAccounts();
-
-    await bustadToken.grantRole(
-      ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MINTER_ROLE")),
-      admin
-    );
-    await bustadToken.mint(mockUser, fromEther(1));
-    const balance = await bustadToken.balanceOf(mockUser);
-    expect(Number(toEther(balance))).to.equal(1 - TOKEN_MINTING_FEE);
-  });
-
-  it("Should transfer correct amount to beneficiary", async () => {
-    const { mockUser } = await getNamedAccounts();
-
-    await bustadToken.transfer(mockUser, fromEther(1));
-    const balance = await bustadToken.balanceOf(mockUser);
-    expect(Number(toEther(balance))).to.equal(1 - TOKEN_TRANSFER_FEE);
-  });
+  describe("Minting", function() {
+    it("Should mint correct amount to beneficiary", async () => {
+      const { admin, mockUser } = await getNamedAccounts();
+  
+      await bustadToken.grantRole(
+        ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MINTER_ROLE")),
+        admin
+      );
+      await bustadToken.mint(mockUser, fromEther(1));
+      const balance = await bustadToken.balanceOf(mockUser);
+      expect(Number(toEther(balance))).to.equal(1 - TOKEN_MINTING_FEE);
+    });
+  
+    it("Should transfer correct amount to beneficiary", async () => {
+      const { mockUser } = await getNamedAccounts();
+  
+      await bustadToken.transfer(mockUser, fromEther(1));
+      const balance = await bustadToken.balanceOf(mockUser);
+      expect(Number(toEther(balance))).to.equal(1 - TOKEN_TRANSFER_FEE);
+    });
+  })
 });

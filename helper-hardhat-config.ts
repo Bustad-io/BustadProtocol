@@ -6,6 +6,7 @@ export const MOCK_USER_GOV_SHARE = 0.1;
 export const INITIAL_TOKEN_AMOUNT = 1;
 export const TOKEN_NAME = "Bustad Coin";
 export const TOKEN_SYMBOL = "BUC";
+export const TOKEN_DECIMALS = 18;
 
 export const RELEASE_FUND_BALANCE = 750_000;
 
