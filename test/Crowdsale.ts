@@ -9,8 +9,6 @@ import { ERC20 } from '../typechain/ERC20.d';
 import { DaiTest } from '../typechain/DaiTest.d';
 import { AccountContractSetupType, setupTestFactory } from "./utils/setup";
 
-const DAIaddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
-
 describe("Crowdsale", () => {
   let bustadToken: BustadToken;  
   let dai: DaiTest;
@@ -91,35 +89,31 @@ describe("Crowdsale", () => {
     });
   });
 
-  // describe("Rate", () => {
-  //   before(async () => {
-  //     // Use admin as signer
-  //     const signers = await ethers.getSigners();
-  //     crowdsale = await crowdsale.connect(signers[0]);
-  //   });
+  describe("Rate", () => {
+    before(async () => {      
+      await admin.contract.setRate(fromEther(10));
+    });
 
-  //   it("Should set new rate", async () => {
-  //     expect(await crowdsale.rate()).to.equal(fromEther(1));
+    beforeEach(async () => {
+      await resetTokenBalance(mockUser.signer, bustadToken.address);      
+    });
 
-  //     await crowdsale.setRate(10);
+    it("Should mint correct number of tokens with new rate when buying with ETH", async () => {      
+      await mockUser.contract.buyTokensWithETH({
+        value: fromEther(1).toString(),
+      });
 
-  //     expect(await crowdsale.rate()).to.equal(10);
-  //   });
+      const balance = await bustadToken.balanceOf(mockUser.signer.address);
+      expect(Number(toEther(balance))).to.equal(9700);
+    });    
 
-  //   it("Should mint correct number of tokens with new rate", async () => {
-  //     const signers = await ethers.getSigners();
-  //     const { mockUser } = await getNamedAccounts();
-  //     await crowdsale.setRate(fromEther(3.14));
+    it("Should mint correct number of tokens with new rate when buying with stable coin", async () => {
+      const mockUserDai = <DaiTest> await ethers.getContract("DaiTest", mockUser.signer.address);        
+      await mockUserDai.approve(mockUser.contract.address, fromEther(100));      
+      await mockUser.contract.buyTokensWithStableCoin(fromEther(100), dai.address);
 
-  //     // Use mockUser as signer
-  //     crowdsale = await crowdsale.connect(signers[2]);
-
-  //     await crowdsale.buyTokensWithETH({
-  //       value: fromEther(1).toString(),
-  //     });
-
-  //     const balance = await bustadToken.balanceOf(mockUser);
-  //     expect(Number(toEther(balance))).to.be.closeTo(9087, 0.1);
-  //   });
-  // });
+      const balance = await bustadToken.balanceOf(mockUser.signer.address);
+      expect(Number(toEther(balance))).to.equal(970);
+    });
+  });
 });
