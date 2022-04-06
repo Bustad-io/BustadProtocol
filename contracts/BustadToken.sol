@@ -1,6 +1,5 @@
-// contracts/GLDToken.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -14,7 +13,7 @@ contract BustadToken is ERC20, AccessControl, WithFee, Pausable {
     bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    address feeCollector;
+    address public feeCollector;
 
     constructor(
         string memory name,
