@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { fromEther } from "../utils/format";
+import { ethers } from "hardhat";
 import {
   TOKEN_MINTING_FEE,
   TOKEN_MINTING_TYPE,
@@ -14,7 +15,7 @@ import {
 const deployToken: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
-  const { getNamedAccounts, deployments } = hre;
+  const { getNamedAccounts, deployments, network } = hre;
 
   const { deploy } = deployments;
   const { admin } = await getNamedAccounts();
@@ -33,6 +34,15 @@ const deployToken: DeployFunction = async function (
     log: true,
     waitConfirmations: 1,
   });
+
+  if(!network.live) {
+    const bustadToken = await ethers.getContract("BustadToken", admin);
+
+    await bustadToken.grantRole(
+      ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MINTER_ROLE")),
+      admin
+    );
+  }
 };
 
 export default deployToken;

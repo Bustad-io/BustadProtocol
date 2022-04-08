@@ -1,10 +1,13 @@
 import { expect } from "chai";
 import { ethers, deployments, getNamedAccounts } from "hardhat";
-import { fromEther } from "../../utils/format";
+import { fromEther, toEther } from "../../utils/format";
 import { BustadToken, GovernanceToken, ReleaseFund } from "../../typechain";
+import { calculateMintingFee } from '../utils/helpers';
 import {
   MOCK_USER_GOV_SHARE,
   RELEASE_FUND_BALANCE,
+  TOKEN_MINTING_FEE,
+  TOKEN_MINTING_TYPE,
   TOKEN_TRANSFER_FEE,
   TOTAL_GOV_TOKEN_AMOUNT,
 } from "../../helper-hardhat-config";
@@ -25,22 +28,23 @@ describe("ReleaseFund", function () {
     releaseFund = await ethers.getContract("ReleaseFund", admin);
     governanceToken = await ethers.getContract("GovernanceToken", admin);
     bustadtoken = await ethers.getContract("BustadToken", admin);
-
+    
     await (
       await governanceToken.transfer(
         mockUser,
         fromEther(TOTAL_GOV_TOKEN_AMOUNT * MOCK_USER_GOV_SHARE)
-      )
-    ).wait();
+        )
+        ).wait();
+        console.log('before',toEther(await governanceToken.balanceOf(mockUser)));
   });
 
   describe("Initialization", () => {
-    it("Initialize", async () => {
+    before(async () => {
       const res = await (await governanceToken.snapshot()).wait();
       const snapshotId = Number(res.events![0].args![0]);
       const blockNumber = await ethers.provider.getBlockNumber();
 
-      await bustadtoken.transfer(
+      await bustadtoken.mint(
         releaseFund.address,
         fromEther(RELEASE_FUND_BALANCE)
       );
@@ -54,10 +58,14 @@ describe("ReleaseFund", function () {
           blockNumber
         )
       ).wait();
+
+      console.log('BALANCE1', toEther(await bustadtoken.balanceOf(releaseFund.address)))
     });
     it("should have correct balance", async () => {
+      const mintingFee = calculateMintingFee(RELEASE_FUND_BALANCE, TOKEN_MINTING_FEE, TOKEN_MINTING_TYPE);
+
       expect(await bustadtoken.balanceOf(releaseFund.address)).to.equal(
-        fromEther(RELEASE_FUND_BALANCE - TOKEN_TRANSFER_FEE)
+        fromEther(RELEASE_FUND_BALANCE - mintingFee)
       );
     });
   });
@@ -66,18 +74,22 @@ describe("ReleaseFund", function () {
     it("should withdraw", async () => {
       const signers = await ethers.getSigners();
       await (await releaseFund.connect(signers[2])).withdraw();
+      console.log('BALANCE2', toEther(await bustadtoken.balanceOf(releaseFund.address)))
     });
     it("should have correct fund balance", async () => {
+      const mintingFee = calculateMintingFee(RELEASE_FUND_BALANCE, TOKEN_MINTING_FEE, TOKEN_MINTING_TYPE);
+
       expect(await bustadtoken.balanceOf(releaseFund.address)).to.equal(
         fromEther(
-          RELEASE_FUND_BALANCE - RELEASE_FUND_BALANCE * MOCK_USER_GOV_SHARE
+          RELEASE_FUND_BALANCE - mintingFee - ((RELEASE_FUND_BALANCE - mintingFee) * MOCK_USER_GOV_SHARE)
         )
       );
     });
     it("should have correct user balance", async () => {
+      const mintingFee = calculateMintingFee(RELEASE_FUND_BALANCE, TOKEN_MINTING_FEE, TOKEN_MINTING_TYPE);
       expect(await bustadtoken.balanceOf(mockUser)).to.equal(
         fromEther(
-          RELEASE_FUND_BALANCE * MOCK_USER_GOV_SHARE - TOKEN_TRANSFER_FEE
+          (RELEASE_FUND_BALANCE - mintingFee) * MOCK_USER_GOV_SHARE - TOKEN_TRANSFER_FEE
         )
       );
     });
