@@ -34,8 +34,7 @@ describe("ReleaseFund", function () {
         mockUser,
         fromEther(TOTAL_GOV_TOKEN_AMOUNT * MOCK_USER_GOV_SHARE)
         )
-        ).wait();
-        console.log('before',toEther(await governanceToken.balanceOf(mockUser)));
+        ).wait();        
   });
 
   describe("Initialization", () => {
@@ -57,9 +56,7 @@ describe("ReleaseFund", function () {
           blockNumber,
           blockNumber
         )
-      ).wait();
-
-      console.log('BALANCE1', toEther(await bustadtoken.balanceOf(releaseFund.address)))
+      ).wait();      
     });
     it("should have correct balance", async () => {
       const mintingFee = calculateMintingFee(RELEASE_FUND_BALANCE, TOKEN_MINTING_FEE, TOKEN_MINTING_TYPE);
@@ -73,8 +70,7 @@ describe("ReleaseFund", function () {
   describe("Withdraw", async () => {
     it("should withdraw", async () => {
       const signers = await ethers.getSigners();
-      await (await releaseFund.connect(signers[2])).withdraw();
-      console.log('BALANCE2', toEther(await bustadtoken.balanceOf(releaseFund.address)))
+      await (await releaseFund.connect(signers[2])).withdraw();      
     });
     it("should have correct fund balance", async () => {
       const mintingFee = calculateMintingFee(RELEASE_FUND_BALANCE, TOKEN_MINTING_FEE, TOKEN_MINTING_TYPE);
