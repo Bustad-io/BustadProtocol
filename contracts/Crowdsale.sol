@@ -9,8 +9,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./BustadToken.sol";
 import "./interfaces/ISwap.sol";
 
-import "hardhat/console.sol";
-
 abstract contract IERC20Extended is IERC20 {
     function decimals() public view virtual returns (uint8);
 }

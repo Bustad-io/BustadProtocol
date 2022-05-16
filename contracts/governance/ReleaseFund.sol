@@ -2,10 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "./GovernanceToken.sol";
-
 import "../BustadToken.sol";
-
-import "hardhat/console.sol";
 
 contract ReleaseFund {
     uint256 public govTokenSnapshopId;
@@ -74,7 +71,7 @@ contract ReleaseFund {
 
         require(
             bustadToken.balanceOf(address(this)) > shareAmount,
-            "User share amount surpasses fund balance"
+            "amount surpasses fund balance"
         );
 
         hasWithdrawnFunds[receiver] = true;
