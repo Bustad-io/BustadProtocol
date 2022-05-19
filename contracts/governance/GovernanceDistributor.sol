@@ -60,7 +60,7 @@ contract GovernanceDistributor is AccessControl {
             "No more tokens to withdraw"
         );
         require(
-            govTokenShare < govToken.balanceOf(address(this)),
+            govTokenShare <= govToken.balanceOf(address(this)),
             "govTokenShare surpasses balance"
         );
         require(
