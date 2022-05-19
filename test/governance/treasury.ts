@@ -23,7 +23,7 @@ describe("Treasury", function () {
     const blockNumber = await ethers.provider.getBlockNumber();
 
     bustadtoken = <BustadToken>await BustadToken.deploy("", "", fromEther(TREASURY_BALANCE), 0, 0, admin.address, 0, 0);
-    treasury = <Treasury>await Treasury.deploy(releaseFund.address, governanceToken.address, bustadtoken.address, blockNumber, blockNumber, fromEther(100_000), fromEther(100_000));
+    treasury = <Treasury>await Treasury.deploy(releaseFund.address, governanceToken.address, bustadtoken.address, blockNumber, blockNumber, fromEther(100_000));
 
     await bustadtoken.transfer(treasury.address, fromEther(TREASURY_BALANCE));
   });

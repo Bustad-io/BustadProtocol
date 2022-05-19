@@ -1,8 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { fromEther } from "../utils/format";
-import {
-  TREASURY_MAX_DONATION_AMOUNT,
+import {  
   TREASURY_MAX_RELEASE_AMOUNT,
 } from "../helper-hardhat-config";
 import { BustadToken } from "../typechain";
@@ -28,8 +27,7 @@ const deployTreasury: DeployFunction = async function (
       token.address,
       blockNumber,
       blockNumber,
-      fromEther(TREASURY_MAX_RELEASE_AMOUNT),
-      fromEther(TREASURY_MAX_DONATION_AMOUNT),
+      fromEther(TREASURY_MAX_RELEASE_AMOUNT)
     ],
     log: true,
     waitConfirmations: 1,

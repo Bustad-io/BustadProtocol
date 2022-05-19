@@ -16,8 +16,7 @@ contract Treasury is Ownable {
     uint256 public withdrawDelay;
     uint256 public currentSnapshotId;
     address public currentReleaseFundContractAddress;
-    uint256 public maxReleaseAmount;
-    uint256 public maxDonationAmount;
+    uint256 public maxReleaseAmount;    
 
     event Release(
         uint256 amount,
@@ -25,8 +24,7 @@ contract Treasury is Ownable {
         uint256 refundDelay,
         uint256 withdrawDelay,
         address releaseFundContractAddress
-    );
-    event Donate(address to, uint256 amount);
+    );    
 
     constructor(
         address _releaseFundMasterContract,
@@ -34,8 +32,7 @@ contract Treasury is Ownable {
         BustadToken _bustadToken,
         uint256 _refundDelay,
         uint256 _withdrawDelay,
-        uint256 _maxReleaseAmout,
-        uint256 _maxDonationAmount
+        uint256 _maxReleaseAmout
     ) {
         releaseFundMasterContract = _releaseFundMasterContract;
         bustadToken = _bustadToken;
@@ -45,7 +42,6 @@ contract Treasury is Ownable {
         currentSnapshotId = 0;
         currentReleaseFundContractAddress = address(0);
         maxReleaseAmount = _maxReleaseAmout;
-        maxDonationAmount = _maxDonationAmount;
     }
 
     function release(uint256 amount) external onlyOwner {        
@@ -86,18 +82,7 @@ contract Treasury is Ownable {
             withdrawDelay,
             cloneAddress
         );
-    }
-
-    function donate(address to, uint256 amount) external onlyOwner {
-        require(amount <= maxDonationAmount, "Amount exceeded limit");
-        require(
-            amount <= bustadToken.balanceOf(address(this)),
-            "Amount exceeded balance"
-        );
-
-        bustadToken.transfer(to, amount);
-        emit Donate(to, amount);
-    }
+    }    
 
     function setRefundTime(uint256 _refundDelay) external onlyOwner {
         refundDelay = _refundDelay;
@@ -109,11 +94,7 @@ contract Treasury is Ownable {
 
     function setMaxReleaseAmount(uint256 _maxReleaseAmount) external onlyOwner {
         maxReleaseAmount = _maxReleaseAmount;
-    }
-
-    function setMaxDonationAmount(uint256 _donationAmount) external onlyOwner {
-        maxDonationAmount = _donationAmount;
-    }
+    }    
 
     function getReleaseFundContractAddress(uint256 snapshopId)
         public
