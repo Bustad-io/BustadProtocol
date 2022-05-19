@@ -1,6 +1,7 @@
 import { TokenFeeType } from "./constants/TokenFeeType";
 
-export const TOTAL_GOV_TOKEN_AMOUNT = 100_000;
+export const TOTAL_GOV_TOKEN_AMOUNT = 300_000_000;
+export const TOTAL_GOV_TOKEN_DISTRIBUTION_AMOUNT = 100_000_000;
 export const MOCK_USER_GOV_SHARE = 0.1;
 
 export const INITIAL_TOKEN_AMOUNT = 1;

@@ -1,11 +1,8 @@
 import { expect } from "chai";
-import { Signer } from "ethers";
-import { ethers, getNamedAccounts, deployments } from "hardhat";
-import { BustadToken, Crowdsale, Dai, IERC20 } from "../typechain";
+import { ethers, getNamedAccounts } from "hardhat";
+import { BustadToken, Crowdsale } from "../typechain";
 import { fromEther, toEther } from "../utils/format";
-import { getExternalContract } from "../utils/helpers";
 import { resetTokenBalance, transferTotalBalance } from "./utils/utils";
-import { ERC20 } from '../typechain/ERC20.d';
 import { DaiTest } from '../typechain/DaiTest.d';
 import { AccountContractSetupType, setupTestFactory } from "./utils/setup";
 

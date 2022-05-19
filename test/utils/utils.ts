@@ -12,7 +12,7 @@ export const resetTokenBalance = async (
 
   const balance = await token.balanceOf(signer.address);
   const tx = await token.transfer(randomReceiver.address, balance);
-  await tx.wait();
+  await tx.wait(1);
 };
 
 export const transferTotalBalance = async (
@@ -24,4 +24,8 @@ export const transferTotalBalance = async (
   const balance = await token.balanceOf(from.address);
   const tx = await token.transfer(to, balance);
   await tx.wait();
+};
+
+export const generateAddress = () => {
+  return ethers.Wallet.createRandom();
 };

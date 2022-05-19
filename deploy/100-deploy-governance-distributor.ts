@@ -1,18 +1,20 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
+import { fromEther } from "../utils/format";
 
 const deployGovernanceDistributor: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
 ) {
   const { getNamedAccounts, deployments, network } = hre;
 
-  const { deploy } = deployments;
+  const { deploy, get } = deployments;
   const { admin } = await getNamedAccounts();
+  const governanceToken = await get("GovernanceToken");
 
   await deploy("GovernanceDistributor", {
     from: admin,
-    args: [100],
+    args: [governanceToken.address, fromEther(1)],
     log: true,
     waitConfirmations: 1,
   });
@@ -22,6 +24,10 @@ const deployGovernanceDistributor: DeployFunction = async function (
 
     await governanceDistributor.grantRole(
       ethers.utils.keccak256(ethers.utils.toUtf8Bytes("CROWDSALE_ROLE")),
+      admin
+    );
+    await governanceDistributor.grantRole(
+      ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MAINTAINER_ROLE")),
       admin
     );
   }

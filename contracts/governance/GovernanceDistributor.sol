@@ -9,13 +9,14 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./GovernanceToken.sol";
 import "../BustadToken.sol";
 
+import "hardhat/console.sol";
+
 contract GovernanceDistributor is AccessControl {
     using SafeMath for uint256;
 
     mapping(address => uint256) public userGovTokenShareMapping;
 
-    GovernanceToken public govToken;
-    BustadToken public bustadToken;
+    GovernanceToken public govToken;    
 
     uint256 public decayThreshold;
     uint256 public amountLeftToDistribute;
@@ -26,10 +27,11 @@ contract GovernanceDistributor is AccessControl {
     bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
     bytes32 public constant CROWDSALE_ROLE = keccak256("CROWDSALE_ROLE");
 
-    constructor(uint256 initialDistributionRatio) {
+    constructor(GovernanceToken _govToken, uint256 initialDistributionRatio) {
         bustadToGovDistributionRatio = initialDistributionRatio;
         lastRatioDecreaseDate = block.timestamp;
-        ratioDecreaseInterval = 90 days;        
+        ratioDecreaseInterval = 90 days;
+        govToken = _govToken;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
@@ -46,7 +48,6 @@ contract GovernanceDistributor is AccessControl {
         }
 
         uint256 govTokenShare = getGovTokenShare(bustadAmountBought);
-        console.log(govTokenShare / 1 ether);
 
         amountLeftToDistribute -= govTokenShare;
         userGovTokenShareMapping[userAddress] += govTokenShare;
@@ -74,6 +75,14 @@ contract GovernanceDistributor is AccessControl {
         govToken.transfer(receiver, govTokenShare);
     }
 
+    function getGovTokenShareForUser(address _userAddress)
+        external
+        view
+        returns (uint256)
+    {
+        return userGovTokenShareMapping[_userAddress];
+    }
+
     function setAmountLeftToDistribute(uint256 _amountLeftToDistribute)
         external
         onlyRole(MAINTAINER_ROLE)
@@ -97,6 +106,6 @@ contract GovernanceDistributor is AccessControl {
         view
         returns (uint256)
     {
-        return (bustadAmountBought.mul(bustadToGovDistributionRatio)).div(100);
+        return (bustadAmountBought.mul(bustadToGovDistributionRatio)).div(1 ether);
     }
 }
