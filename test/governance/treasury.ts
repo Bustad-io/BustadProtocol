@@ -1,21 +1,29 @@
 import { expect } from "chai";
 import { ethers, getNamedAccounts, deployments } from "hardhat";
-import { fromEther } from "../../utils/format";
+import { fromEther, toEther } from "../../utils/format";
 import { BustadToken, Treasury } from "../../typechain";
-import { TREASURY_BALANCE } from "../../helper-hardhat-config";
 
 describe("Treasury", function () {
   let bustadtoken: BustadToken;
   let treasury: Treasury;
 
   const RELEASE_AMOUNT = 100_000;
+  const TREASURY_BALANCE = 100_000;
 
   before(async () => {
-    const { admin } = await getNamedAccounts();
+    const [admin] = await ethers.getSigners();
+
+    const BustadToken = await ethers.getContractFactory("BustadToken", admin);
+    const Treasury = await ethers.getContractFactory("Treasury", admin);
 
     await deployments.fixture();
-    treasury = await ethers.getContract("Treasury", admin);
-    bustadtoken = await ethers.getContract("BustadToken", admin);
+    const releaseFund = await ethers.getContract("ReleaseFund", admin);
+    const governanceToken = await ethers.getContract("GovernanceToken", admin);
+
+    const blockNumber = await ethers.provider.getBlockNumber();
+
+    bustadtoken = <BustadToken>await BustadToken.deploy("", "", fromEther(TREASURY_BALANCE), 0, 0, admin.address, 0, 0);
+    treasury = <Treasury>await Treasury.deploy(releaseFund.address, governanceToken.address, bustadtoken.address, blockNumber, blockNumber, fromEther(100_000), fromEther(100_000));
 
     await bustadtoken.transfer(treasury.address, fromEther(TREASURY_BALANCE));
   });
@@ -50,37 +58,6 @@ describe("Treasury", function () {
       await expect(treasury.release(fromEther(100_000_000))).to.be.revertedWith(
         "Amount exceeded balance"
       );
-    });
-  });
-
-  describe("Donation", async function () {
-    it("Should donate", async function () {
-      const AMOUNT = 100;
-      const accounts = await ethers.getSigners();
-      await treasury.donate(accounts[2].address, fromEther(AMOUNT));
-      expect(await bustadtoken.balanceOf(accounts[2].address)).to.equal(
-        fromEther(AMOUNT)
-      );
-    });
-    it("should set max donation amount", async function () {
-      await (await treasury.setMaxDonationAmount(fromEther(100))).wait();
-    });
-    it("Should throw error: <Amount exceeded limit>", async function () {
-      const DONATION_AMOUNT = 100_000;
-      const accounts = await ethers.getSigners();
-      await expect(
-        treasury.donate(accounts[2].address, fromEther(DONATION_AMOUNT))
-      ).to.be.revertedWith("Amount exceeded limit");
-    });
-
-    it("Should throw error: <Amount exceeded balance>", async function () {
-      const accounts = await ethers.getSigners();
-      await (
-        await treasury.setMaxDonationAmount(fromEther(100_000_000))
-      ).wait();
-      await expect(
-        treasury.donate(accounts[2].address, fromEther(100_000_000))
-      ).to.be.revertedWith("Amount exceeded balance");
     });
   });
 });

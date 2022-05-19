@@ -48,7 +48,7 @@ contract Treasury is Ownable {
         maxDonationAmount = _maxDonationAmount;
     }
 
-    function release(uint256 amount) external onlyOwner {
+    function release(uint256 amount) external onlyOwner {        
         require(amount <= maxReleaseAmount, "Amount exceeded limit");
         require(
             amount <= bustadToken.balanceOf(address(this)),
