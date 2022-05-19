@@ -9,8 +9,6 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./GovernanceToken.sol";
 import "../BustadToken.sol";
 
-import "hardhat/console.sol";
-
 contract GovernanceDistributor is AccessControl {
     using SafeMath for uint256;
 
@@ -55,14 +53,14 @@ contract GovernanceDistributor is AccessControl {
 
     function withdraw() external {
         address receiver = msg.sender;
-        uint256 govTokenShare = userGovTokenShareMapping[receiver];
+        uint256 govTokenShare = userGovTokenShareMapping[receiver];        
 
         require(
             govToken.balanceOf(address(this)) > 0,
             "No more tokens to withdraw"
         );
         require(
-            govTokenShare > govToken.balanceOf(address(this)),
+            govTokenShare < govToken.balanceOf(address(this)),
             "govTokenShare surpasses balance"
         );
         require(
@@ -79,7 +77,7 @@ contract GovernanceDistributor is AccessControl {
         external
         view
         returns (uint256)
-    {
+    {        
         return userGovTokenShareMapping[_userAddress];
     }
 

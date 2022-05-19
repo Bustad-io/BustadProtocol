@@ -59,7 +59,7 @@ const config: HardhatUserConfig = {
       },
       accounts: accounts.map((acc) => ({
         privateKey: acc,
-        balance: (10 * Math.pow(10, 18)).toString(),
+        balance: (100 * Math.pow(10, 18)).toString(),
       })),
     },
   },

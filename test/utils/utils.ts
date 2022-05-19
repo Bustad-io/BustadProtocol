@@ -1,5 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ethers } from "hardhat";
+import { Provider } from '@ethersproject/providers';
+import { fromEther } from "../../utils/format";
 
 export const resetTokenBalance = async (
   signer: SignerWithAddress,
@@ -26,6 +28,23 @@ export const transferTotalBalance = async (
   await tx.wait();
 };
 
-export const generateAddress = () => {
-  return ethers.Wallet.createRandom();
+export const getETHFromMockUser = async (  
+  toAddress: string,
+  amount: number
+) => {
+  const [,,mockUser] = await ethers.getSigners();
+  await mockUser.sendTransaction({ to: toAddress, value: fromEther(amount)});    
+};
+
+export const generateAddress = async (provider?: Provider, initialFund: number = 0) => {
+  const wallet = ethers.Wallet.createRandom();
+
+  if(initialFund > 0) {
+    await getETHFromMockUser(wallet.address, initialFund);
+  }  
+
+  if(provider) {
+    return wallet.connect(provider);
+  }
+  return wallet;
 };
