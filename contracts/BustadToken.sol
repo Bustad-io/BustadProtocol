@@ -4,9 +4,10 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "./WithFee.sol";
 
-contract BustadToken is ERC20, AccessControl, WithFee, Pausable {
+contract BustadToken is ERC20, ERC20Burnable, AccessControl, WithFee, Pausable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
