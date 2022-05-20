@@ -88,4 +88,33 @@ describe("BustadToken", function () {
       })
     });
   })
+
+  describe("Burning", () => {
+    let userWallet: Wallet;
+    const AMOUNT_TO_MINT = 1;
+    beforeEach(async () => {
+      userWallet = await generateWallet(ethers.provider, 10);      
+      await bustadToken.mint(userWallet.address, fromEther(AMOUNT_TO_MINT));      
+    });
+
+    it("Should have correct balance and totalsupply after burning", async () => {
+      const userBalanceBeforeBurn = await bustadToken.balanceOf(userWallet.address);
+      expect(userBalanceBeforeBurn).to.equal(fromEther(AMOUNT_TO_MINT - TOKEN_MINTING_FEE));
+
+      const totalsupplyBeforeBurn = await bustadToken.totalSupply();
+      expect(totalsupplyBeforeBurn).to.equal(fromEther(INITIAL_TOKEN_AMOUNT + AMOUNT_TO_MINT));
+
+      bustadToken = await ethers.getContract("BustadToken", userWallet);
+
+      const AMOUNT_TO_BURN = userBalanceBeforeBurn;
+      await bustadToken.burn(userBalanceBeforeBurn);
+
+      const userBalanceAfterBurn = await bustadToken.balanceOf(userWallet.address);
+      expect(userBalanceAfterBurn).to.equal(0);
+
+      const totalsupplyAfterBurn = await bustadToken.totalSupply();      
+      
+      expect(Number(toEther(totalsupplyAfterBurn))).to.equal(Number(toEther(totalsupplyBeforeBurn)) - Number(toEther((AMOUNT_TO_BURN))));
+    });
+  })
 });
