@@ -36,7 +36,7 @@ export const getETHFromMockUser = async (
   await mockUser.sendTransaction({ to: toAddress, value: fromEther(amount)});    
 };
 
-export const generateAddress = async (provider?: Provider, initialFund: number = 0) => {
+export const generateWallet = async (provider?: Provider, initialFund: number = 0) => {
   const wallet = ethers.Wallet.createRandom();
 
   if(initialFund > 0) {

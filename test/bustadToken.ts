@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { Wallet } from "ethers";
 import { ethers, deployments, getNamedAccounts } from "hardhat";
 import {
   TOKEN_MINTING_FEE,
@@ -10,6 +11,7 @@ import {
 } from "../helper-hardhat-config";
 import { BustadToken } from "../typechain";
 import { fromEther, toEther } from "../utils/format";
+import { generateWallet } from "./utils/utils";
 
 describe("BustadToken", function () {
   let bustadToken: BustadToken;
@@ -22,7 +24,7 @@ describe("BustadToken", function () {
     bustadToken = await ethers.getContract("BustadToken", admin);
   });
 
-  describe("Deployment", function() {
+  describe("Deployment", function () {
     it("Should get correct initial parameters", async function () {
       expect(await bustadToken.name()).to.equal(TOKEN_NAME);
       expect(await bustadToken.symbol()).to.equal(TOKEN_SYMBOL);
@@ -31,31 +33,59 @@ describe("BustadToken", function () {
         fromEther(INITIAL_TOKEN_AMOUNT)
       );
     });
-    it("Should mint correct initial supply to admin", async function() {
+    it("Should mint correct initial supply to admin", async function () {
       const adminBalance = await bustadToken.balanceOf(admin);
       expect(adminBalance).to.equal(fromEther(INITIAL_TOKEN_AMOUNT));
     });
   });
 
-  describe("Minting", function() {
-    it("Should mint correct amount to beneficiary", async () => {
-      const { admin, mockUser } = await getNamedAccounts();
-  
+  describe("Minting", function () {
+    let userWallet: Wallet;
+    let feeCollector: Wallet;
+    beforeEach(async () => {
+      userWallet = await generateWallet(ethers.provider);
+      feeCollector = await generateWallet(ethers.provider);
+
       await bustadToken.grantRole(
-        ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MINTER_ROLE")),
+        ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MAINTAINER_ROLE")),
         admin
       );
-      await bustadToken.mint(mockUser, fromEther(1));
-      const balance = await bustadToken.balanceOf(mockUser);
-      expect(Number(toEther(balance))).to.equal(1 - TOKEN_MINTING_FEE);
+
+      await bustadToken.setFeeCollector(feeCollector.address);
     });
-  
-    it("Should transfer correct amount to beneficiary", async () => {
-      const { mockUser } = await getNamedAccounts();
-  
-      await bustadToken.transfer(mockUser, fromEther(1));
-      const balance = await bustadToken.balanceOf(mockUser);
-      expect(Number(toEther(balance))).to.equal(1 - TOKEN_TRANSFER_FEE);
+    it("Should mint correct amount to user and feeCollector", async () => {
+      await bustadToken.mint(userWallet.address, fromEther(1));
+
+      const userBalance = await bustadToken.balanceOf(userWallet.address);
+      expect(userBalance).to.equal(fromEther(1 - TOKEN_MINTING_FEE));
+
+      const feeCollectorbalance = await bustadToken.balanceOf(feeCollector.address);
+      expect(feeCollectorbalance).to.equal(fromEther(TOKEN_MINTING_FEE));
+    });
+
+    it("Should transfer correct amount to user and feeCollector", async () => {
+      await bustadToken.transfer(userWallet.address, fromEther(1));
+
+      const userBalance = await bustadToken.balanceOf(userWallet.address);
+      expect(userBalance).to.equal(fromEther(1 - TOKEN_TRANSFER_FEE));
+
+      const feeCollectorbalance = await bustadToken.balanceOf(feeCollector.address);
+      expect(feeCollectorbalance).to.equal(fromEther(TOKEN_TRANSFER_FEE));
+    });
+
+    describe("Pause minting", () => {
+      beforeEach(async () => {
+        await bustadToken.grantRole(
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("PAUSER_ROLE")),
+          admin
+        );
+        await bustadToken.pause();
+      });
+      it("Should not be able to mint", async () => {
+        await expect(bustadToken.mint(userWallet.address, fromEther(1))).to.be.revertedWith(
+          "Pausable: paused"
+        );
+      })
     });
   })
 });

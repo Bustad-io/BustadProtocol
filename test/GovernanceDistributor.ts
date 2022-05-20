@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { deployments, ethers } from "hardhat";
 import { GovernanceToken } from "../typechain";
 import { fromEther } from "../utils/format";
-import { generateAddress } from "./utils/utils";
+import { generateWallet } from "./utils/utils";
 import { GovernanceDistributor } from '../typechain/GovernanceDistributor.d';
 import { TOTAL_GOV_TOKEN_DISTRIBUTION_AMOUNT } from "../helper-hardhat-config";
 import { moveTime } from "../utils/move-blocks";
@@ -37,7 +37,7 @@ describe("GovernanceDistributor", () => {
       const buyAmount: number = 100_000;
       let userWallet: Wallet;
       before(async () => {      
-        userWallet = await generateAddress(ethers.provider, 5);
+        userWallet = await generateWallet(ethers.provider, 5);
         if(i > 0) 
           await moveTime(7776001); //Seconds in 90 days            
         await governanceDistributor.addBuyer(userWallet.address ,fromEther(buyAmount));                  
