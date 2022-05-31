@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-/* solhint-disable not-rely-on-time */
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -7,29 +6,30 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 import "./GovernanceToken.sol";
-import "../BustadToken.sol";
 
 contract GovernanceDistributor is AccessControl {
     using SafeMath for uint256;
 
     mapping(address => uint256) public userGovTokenShareMapping;
 
-    GovernanceToken public govToken;    
+    GovernanceToken public govToken;
 
     uint256 public decayThreshold;
-    uint256 public amountLeftToDistribute;
-    uint256 public lastRatioDecreaseDate;
+    uint256 public amountLeftToDistribute;    
     uint256 public ratioDecreaseInterval;
     uint256 public bustadToGovDistributionRatio;
+    uint256 public distributionThreshold;
+    uint256 public distributionThresholdCounter;
 
     bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
     bytes32 public constant CROWDSALE_ROLE = keccak256("CROWDSALE_ROLE");
 
     constructor(GovernanceToken _govToken, uint256 initialDistributionRatio) {
-        bustadToGovDistributionRatio = initialDistributionRatio;
-        lastRatioDecreaseDate = block.timestamp;
+        bustadToGovDistributionRatio = initialDistributionRatio;        
         ratioDecreaseInterval = 90 days;
-        govToken = _govToken;
+        govToken = _govToken;        
+        distributionThreshold = 50_000_000 * 1e18;
+        distributionThresholdCounter = 0;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
@@ -38,17 +38,19 @@ contract GovernanceDistributor is AccessControl {
         external
         onlyRole(CROWDSALE_ROLE)
     {
-        if (amountLeftToDistribute == 0) return;
-
-        if (block.timestamp > lastRatioDecreaseDate + ratioDecreaseInterval) {
-            bustadToGovDistributionRatio /= 2;
-            lastRatioDecreaseDate = block.timestamp;
-        }
+        if (amountLeftToDistribute == 0) return;        
 
         uint256 govTokenShare = getGovTokenShare(bustadAmountBought);
 
         amountLeftToDistribute -= govTokenShare;
         userGovTokenShareMapping[userAddress] += govTokenShare;
+
+        distributionThresholdCounter += bustadAmountBought;
+        
+        if (distributionThresholdCounter >= distributionThreshold) {        
+            bustadToGovDistributionRatio /= 2;
+            distributionThresholdCounter -= distributionThreshold;
+        }
     }
 
     function withdraw() external {
@@ -97,6 +99,13 @@ contract GovernanceDistributor is AccessControl {
         onlyRole(MAINTAINER_ROLE)
     {
         ratioDecreaseInterval = _ratioDecreaseInterval;
+    }
+
+    function setBustadTokenThreshold(uint256 _distributionThreshold)
+        external
+        onlyRole(MAINTAINER_ROLE)
+    {
+        distributionThreshold = _distributionThreshold;
     }
 
     function getGovTokenShare(uint256 bustadAmountBought)
