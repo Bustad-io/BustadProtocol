@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 import "./BustadToken.sol";
 import "./interfaces/ISwap.sol";
 
@@ -13,7 +14,7 @@ abstract contract IERC20Extended is IERC20 {
     function decimals() public view virtual returns (uint8);
 }
 
-contract Crowdsale is Context, ReentrancyGuard, AccessControl {
+contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20Extended;
 
@@ -25,6 +26,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl {
     address public swapToToken;
 
     bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     mapping(address => bool) acceptedStableCoins;
 
@@ -70,7 +72,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl {
         _initializeAcceptableStableCoin(_acceptedStableCoins);
     }
 
-    function buyTokensWithETH() external payable nonReentrant {
+    function buyTokensWithETH() external payable nonReentrant whenNotPaused {
         address beneficiary = msg.sender;
 
         _preValidatePurchase(beneficiary, msg.value);
@@ -92,7 +94,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl {
     function buyTokensWithStableCoin(
         uint256 amount18based,
         address stableCoinAddress
-    ) external nonReentrant {
+    ) external nonReentrant whenNotPaused {
         require(
             acceptedStableCoins[stableCoinAddress] == true,
             "Token not accepted"
@@ -136,6 +138,14 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl {
 
     function setRate(uint256 newRate) external onlyRole(MAINTAINER_ROLE) {
         rate = newRate;
+    }
+
+    function pause() external onlyRole(PAUSER_ROLE) {
+        _pause();
+    }
+
+    function unpause() external onlyRole(PAUSER_ROLE) {
+        _unpause();
     }
 
     /**

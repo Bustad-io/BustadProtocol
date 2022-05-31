@@ -40,8 +40,7 @@ describe("Crowdsale", () => {
   describe("Buy with ETH", () => {
     let userWallet: Wallet;
     before(async () => {   
-      userWallet = await generateWallet(ethers.provider, 5);
-      console.log('userwallet', userWallet.address);
+      userWallet = await generateWallet(ethers.provider, 5);      
 
       const _crowdsale = await crowdsale.connect(userWallet);      
       await _crowdsale.buyTokensWithETH({
@@ -62,12 +61,9 @@ describe("Crowdsale", () => {
 
   describe("Buy with stable coin", () => {
     let userWallet: Wallet;
-    before(async () => {    
-      /* await transferTotalBalance(horde.signer, mockUser.signer.address, dai.address);
-      await resetTokenBalance(mockUser.signer, bustadToken.address); */
+    before(async () => {          
       await resetTokenBalance(horde, dai.address);
-      userWallet = await generateWallet(ethers.provider, 5);
-      console.log('userwallet', userWallet.address);
+      userWallet = await generateWallet(ethers.provider, 5);      
 
       const _dai = await dai.connect(userWallet);
       const _crowdsale = await crowdsale.connect(userWallet);
@@ -92,8 +88,7 @@ describe("Crowdsale", () => {
     let userWallet: Wallet;
     before(async () => {      
       await crowdsale.setRate(fromEther(10));
-      userWallet = await generateWallet(ethers.provider, 5);
-      console.log('userwallet', userWallet.address);
+      userWallet = await generateWallet(ethers.provider, 5);      
     });    
 
     it("Should mint correct number of tokens with new rate when buying with ETH", async () => {
@@ -120,5 +115,36 @@ describe("Crowdsale", () => {
       const balance = await bustadToken.balanceOf(userWallet.address);
       expect(Number(toEther(balance))).to.equal(970);
     });
+  });
+
+  describe("Paused", () => {
+    let userWallet: Wallet;
+    before(async () => {
+      userWallet = await generateWallet(ethers.provider, 5);      
+
+      await crowdsale.grantRole(
+        ethers.utils.keccak256(ethers.utils.toUtf8Bytes("PAUSER_ROLE")),
+        admin.address
+      );
+      await crowdsale.pause();
+    });    
+
+    it("Should not be able buy with ETH", async () => {
+      const _crowdsale = await crowdsale.connect(userWallet);    
+      
+      await expect(_crowdsale.buyTokensWithETH({
+        value: fromEther(1).toString(),
+      })).to.be.revertedWith(
+        "Pausable: paused"
+      );
+    });            
+
+    it("Should not be able buy with stable coin", async () => {
+      const _crowdsale = await crowdsale.connect(userWallet);    
+      
+      await expect(_crowdsale.buyTokensWithStableCoin(fromEther(100), dai.address)).to.be.revertedWith(
+        "Pausable: paused"
+      );
+    });            
   });
 });
