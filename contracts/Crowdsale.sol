@@ -72,6 +72,8 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         _initializeAcceptableStableCoin(_acceptedStableCoins);
     }
 
+    receive() external payable {}
+
     function buyTokensWithETH() external payable nonReentrant whenNotPaused {
         address beneficiary = msg.sender;
 
@@ -111,30 +113,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         coin.safeTransferFrom(beneficiary, address(this), coinAmount);
 
         _forwardAndMint(coinAmount, amount18based, beneficiary, coin);
-    }
-
-    function _forwardAndMint(
-        uint256 coinAmount,
-        uint256 amount18based,
-        address beneficiary,
-        IERC20 withToken
-    ) private {
-        _forwardToken(coinAmount, withToken);
-
-        uint256 amountToMint = _getTokenAmount(amount18based);
-
-        _mint(beneficiary, amountToMint);
-
-        weiRaised = weiRaised.add(amount18based);
-
-        emit TokensMinted(_msgSender(), amount18based, amountToMint);
-
-        _updatePurchasingState(beneficiary, amount18based);
-
-        _postValidatePurchase(beneficiary, amount18based);
-    }
-
-    receive() external payable {}
+    }    
 
     function setRate(uint256 newRate) external onlyRole(MAINTAINER_ROLE) {
         rate = newRate;
@@ -146,79 +125,6 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
 
     function unpause() external onlyRole(PAUSER_ROLE) {
         _unpause();
-    }
-
-    /**
-     * @dev Validation of an incoming purchase. Use require statements to revert state when conditions are not met.
-     * Use `super` in contracts that inherit from Crowdsale to extend their validations.
-     * Example from CappedCrowdsale.sol's _preValidatePurchase method:
-     *     super._preValidatePurchase(beneficiary, weiAmount);
-     *     require(weiRaised().add(weiAmount) <= cap);
-     * @param beneficiary Address performing the token purchase
-     * @param weiAmount Value in wei involved in the purchase
-     */
-    function _preValidatePurchase(address beneficiary, uint256 weiAmount)
-        internal
-        view
-        virtual
-    {
-        require(
-            beneficiary != address(0),
-            "Crowdsale: beneficiary is the zero address"
-        );
-        require(weiAmount != 0, "Crowdsale: weiAmount is 0");
-        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
-    }
-
-    /**
-     * @dev Validation of an executed purchase. Observe state and use revert statements to undo rollback when valid
-     * conditions are not met.
-     * @param beneficiary Address performing the token purchase
-     * @param weiAmount Value in wei involved in the purchase
-     */
-    function _postValidatePurchase(address beneficiary, uint256 weiAmount)
-        internal
-        view
-        virtual
-    {
-        // solhint-disable-previous-line no-empty-blocks
-    }
-
-    /**
-     * @dev Override for extensions that require an internal state to check for validity (current user contributions,
-     * etc.)
-     * @param beneficiary Address receiving the amountToMint
-     * @param weiAmount Value in wei involved in the purchase
-     */
-    function _updatePurchasingState(address beneficiary, uint256 weiAmount)
-        internal
-        virtual
-    {
-        // solhint-disable-previous-line no-empty-blocks
-    }
-
-    /**
-     * @dev Override to extend the way in which ether is converted to amountToMint.
-     * @param weiAmount Value in wei to be converted into amountToMint
-     * @return Number of amountToMint that can be purchased with the specified _weiAmount
-     */
-    function _getTokenAmount(uint256 weiAmount) private view returns (uint256) {
-        return weiAmount.mul(rate) / 1 ether;
-    }
-
-    /**
-     * @dev Determines how ETH is stored/forwarded on purchases.
-     */
-    function _forwardToken(uint256 amount, IERC20 tokenToForward) private {
-        tokenToForward.transfer(address(wallet), amount);
-    }
-
-    function _mint(address to, uint256 tokenAmount) private {
-        bustadToken.mint(to, tokenAmount);
-    }
-
-    function _swapETH(uint256 amount) private returns (uint256) {
-        return swap.swapETH{value: amount}(swapToToken);
     }
 
     function addAcceptedStableCoin(address _stableCoin)
@@ -274,6 +180,59 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
     function isAcceptableStableCoin(address coin) external view returns (bool) {
         return acceptedStableCoins[coin];
     }
+ 
+    function _preValidatePurchase(address beneficiary, uint256 weiAmount)
+        internal
+        view
+        virtual
+    {
+        require(
+            beneficiary != address(0),
+            "Crowdsale: beneficiary is the zero address"
+        );
+        require(weiAmount != 0, "Crowdsale: weiAmount is 0");
+        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
+    }
+
+    function _forwardAndMint(
+        uint256 coinAmount,
+        uint256 amount18based,
+        address beneficiary,
+        IERC20 withToken
+    ) private {
+        _forwardToken(coinAmount, withToken);
+
+        uint256 amountToMint = _getTokenAmount(amount18based);
+
+        _mint(beneficiary, amountToMint);
+
+        weiRaised = weiRaised.add(amount18based);
+
+        emit TokensMinted(_msgSender(), amount18based, amountToMint);        
+    }
+
+    /**     
+     * @param weiAmount Value in wei to be converted into amountToMint
+     * @return Number of amountToMint that can be purchased with the specified _weiAmount
+     */
+    function _getTokenAmount(uint256 weiAmount) private view returns (uint256) {
+        return weiAmount.mul(rate) / 1 ether;
+    }
+
+    /**
+     * @dev Determines how ETH is stored/forwarded on purchases.
+     */
+    function _forwardToken(uint256 amount, IERC20 tokenToForward) private {
+        tokenToForward.transfer(address(wallet), amount);
+    }
+
+    function _mint(address to, uint256 tokenAmount) private {
+        bustadToken.mint(to, tokenAmount);
+    }
+
+    function _swapETH(uint256 amount) private returns (uint256) {
+        return swap.swapETH{value: amount}(swapToToken);
+    }    
 
     function _initializeAcceptableStableCoin(address[] memory addresses)
         private
