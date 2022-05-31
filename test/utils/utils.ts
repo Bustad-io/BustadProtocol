@@ -2,9 +2,10 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ethers } from "hardhat";
 import { Provider } from '@ethersproject/providers';
 import { fromEther } from "../../utils/format";
+import { Wallet } from "ethers";
 
 export const resetTokenBalance = async (
-  signer: SignerWithAddress,
+  signer: SignerWithAddress | Wallet,
   tokenAddress: string
 ) => {
   const Token = await ethers.getContractFactory("ERC20", signer);
