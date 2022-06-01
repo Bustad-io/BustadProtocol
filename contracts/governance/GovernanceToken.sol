@@ -5,19 +5,32 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Snapshot.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract GovernanceToken is ERC20, ERC20Permit, ERC20Votes, ERC20Snapshot {
-    constructor(uint256 initialSupply)
-        ERC20("BustadGovernance", "BUGOV")
-        ERC20Permit("BustadGovernance")
-    {
+contract GovernanceToken is
+    ERC20,
+    ERC20Permit,
+    ERC20Votes,
+    ERC20Snapshot,
+    AccessControl
+{
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
+    constructor(
+        uint256 initialSupply,
+        string memory name,
+        string memory symbol
+    ) ERC20(name, symbol) ERC20Permit(name) {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _mint(msg.sender, initialSupply);
     }
 
-    // The following functions are overrides required by Solidity.
-
     function snapshot() external returns (uint256) {
         return _snapshot();
+    }
+
+    function mint(address to, uint256 amount) external onlyRole(MINTER_ROLE) {
+        _mint(to, amount);
     }
 
     function _beforeTokenTransfer(
