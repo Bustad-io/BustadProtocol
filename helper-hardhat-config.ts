@@ -20,7 +20,7 @@ export const TOKEN_TRANSFER_FEE = 0;
 export const TOKEN_MINTING_TYPE = TokenFeeType.Percentage;
 export const TOKEN_TRANSFER_TYPE = TokenFeeType.Fixed;
 
-export const SWAP_POOL_FEE = 3000;
+export const ETH_PRICE = 1952.41000000
 
 export const EXTERNAL_CONTRACT_ADDRESSES = [
     {
@@ -90,32 +90,6 @@ export const EXTERNAL_CONTRACT_ADDRESSES = [
             }
         ]
     },
-    {
-        name: "SwapRouter",
-        addresses: [
-            {
-                network: "mainnet",
-                address: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-            },
-            {
-                network: "hardhat",
-                address: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-            },
-            {
-                network: "localhost",
-                address: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-            },
-            {
-                network: "ropsten",
-                address: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-            },
-            {
-                network: "rinkeby",
-                address: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-            }
-        ]
-    },
-    ,
     {
         name: "Quoter",
         addresses: [

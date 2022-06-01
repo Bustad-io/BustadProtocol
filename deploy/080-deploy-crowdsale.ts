@@ -3,6 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
 import { getExternalContract } from "../utils/helpers";
 import { fromEther } from "../utils/format";
+import { ETH_PRICE } from "../helper-hardhat-config";
 
 const deployCrowdsale: DeployFunction = async function (
   hre: HardhatRuntimeEnvironment
@@ -17,37 +18,42 @@ const deployCrowdsale: DeployFunction = async function (
 
   if(network.live) {
     const daiContract = getExternalContract("DAI", network.name);
-    const usdcContract = getExternalContract("USDC", network.name);
-    const swap = await get("Swap");
+    const usdcContract = getExternalContract("USDC", network.name);    
 
     await deploy("Crowdsale", {
       from: admin,
       args: [
-        horde,
-        treasury.address,
-        daiContract,
-        bustadToken.address,
-        swap.address,
+        horde,        
+        bustadToken.address,        
         ethers.constants.WeiPerEther,
         [daiContract, usdcContract],
+        "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
       ],
       log: true,
       waitConfirmations: 1,
     });
   } else {
     const daiTest = await ethers.getContract("DaiTest", admin);
-    const swapTest = await get("SwapTest");
+
+    await deploy("PriceFeedTest", {
+      from: admin,
+      args: [
+        ETH_PRICE * 10 ** 8
+      ],
+      log: true,
+      waitConfirmations: 1,
+    });
+
+    const priceFeedTest = await ethers.getContract("PriceFeedTest", admin);
 
     await deploy("Crowdsale", {
       from: admin,
       args: [
-        horde,
-        treasury.address,
-        daiTest.address,
-        bustadToken.address,
-        swapTest.address,
+        horde,                
+        bustadToken.address,        
         ethers.constants.WeiPerEther,
         [daiTest.address],
+        priceFeedTest.address
       ],
       log: true,
       waitConfirmations: 1,

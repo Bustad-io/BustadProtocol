@@ -7,8 +7,12 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+import "hardhat/console.sol";
+
 import "./BustadToken.sol";
-import "./interfaces/ISwap.sol";
 
 abstract contract IERC20Extended is IERC20 {
     function decimals() public view virtual returns (uint8);
@@ -19,84 +23,73 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
     using SafeERC20 for IERC20Extended;
 
     BustadToken public bustadToken;
-    ISwap public swap;    
+    AggregatorV3Interface internal priceFeed;
 
-    address payable public wallet;
-    address public treasury;
-    address public swapToToken;
+    address payable public bustadWallet;
 
     bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     mapping(address => bool) acceptedStableCoins;
 
-    uint256 public weiRaised;
     uint256 public rate;
 
-    event TokensMinted(
-        address indexed purchaser,
-        uint256 value,
-        uint256 amount
-    );
+    event TokensMinted(address indexed purchaser, uint256 amount);
 
     event AddAcceptedStableCoin(address indexed coinAddress);
     event RemoveAcceptedStableCoin(address indexed coinAddress);
 
     constructor(
-        address payable _wallet,
-        address _treasury,
-        address _swapToToken,
+        address payable _bustadWallet,
         BustadToken _bustadToken,
-        ISwap _swap,
         uint256 _initialRate,
-        address[] memory _acceptedStableCoins
+        address[] memory _acceptedStableCoins,
+        address _priceFeedAddress
     ) {
-        require(_wallet != address(0), "Wallet is the zero address");
-        require(_treasury != address(0), "Treasury is zero address");
-        require(_swapToToken != address(0), "SwapToToken is the zero address");
+        require(_bustadWallet != address(0), "Wallet is the zero address");
         require(
             address(_bustadToken) != address(0),
             "bustadToken is the zero address"
         );
         require(_initialRate > 0, "Rate cannot be 0");
 
-        wallet = _wallet;
+        bustadWallet = _bustadWallet;
         bustadToken = _bustadToken;
         rate = _initialRate;
-        swap = _swap;
-        treasury = _treasury;
-        swapToToken = _swapToToken;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         _initializeAcceptableStableCoin(_acceptedStableCoins);
+        priceFeed = AggregatorV3Interface(_priceFeedAddress);
     }
 
     receive() external payable {}
 
-    function buyTokensWithETH() external payable nonReentrant whenNotPaused {
-        address beneficiary = msg.sender;
+    function buyWithETH() external payable nonReentrant whenNotPaused {
+        address buyer = msg.sender;
 
-        _preValidatePurchase(beneficiary, msg.value);
+        _preValidatePurchase(buyer, msg.value);
 
-        uint256 swappedCoinAmount = _swapETH(msg.value);
-        uint256 swapped18BasedAmount = _fromCoinAmount(
-            swappedCoinAmount,
-            IERC20Extended(swapToToken)
-        );
+        int256 ethUSDPrice = getLatestETHPrice();
 
-        _forwardAndMint(
-            swappedCoinAmount,
-            swapped18BasedAmount,
-            beneficiary,
-            IERC20(swapToToken)
-        );
+        uint256 ethAmountInUSD = (uint256(ethUSDPrice) * msg.value) / 1e18;        
+
+        (bool success, ) = bustadWallet.call{value: msg.value}("");
+
+        if (success) {
+            uint256 amountToMint = _getTokenAmount(ethAmountInUSD);            
+            _mint(buyer, amountToMint);
+            emit TokensMinted(_msgSender(), amountToMint);
+        } else {
+            revert("Could not send ether to bustadWallet");
+        }
     }
 
-    function buyTokensWithStableCoin(
-        uint256 amount18based,
-        address stableCoinAddress
-    ) external nonReentrant whenNotPaused {
+    function buyWithStableCoin(uint256 amount18based, address stableCoinAddress)
+        external
+        nonReentrant
+        whenNotPaused
+    {
         require(
             acceptedStableCoins[stableCoinAddress] == true,
             "Token not accepted"
@@ -104,16 +97,27 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
 
         IERC20Extended coin = IERC20Extended(stableCoinAddress);
 
-        address beneficiary = msg.sender;
+        address buyer = msg.sender;
 
-        _preValidatePurchase(beneficiary, amount18based);
+        _preValidatePurchase(buyer, amount18based);
 
         uint256 coinAmount = _toCoinAmount(amount18based, coin);
 
-        coin.safeTransferFrom(beneficiary, address(this), coinAmount);
+        coin.safeTransferFrom(buyer, address(this), coinAmount);
 
-        _forwardAndMint(coinAmount, amount18based, beneficiary, coin);
-    }    
+        coin.transfer(address(bustadWallet), coinAmount);
+
+        uint256 amountToMint = _getTokenAmount(amount18based);
+
+        _mint(buyer, amountToMint);
+
+        emit TokensMinted(_msgSender(), amountToMint);
+    }
+
+    function getLatestETHPrice() public view returns (int256) {
+        (, int256 price, , , ) = priceFeed.latestRoundData();
+        return price * 1e10;
+    }
 
     function setRate(uint256 newRate) external onlyRole(MAINTAINER_ROLE) {
         rate = newRate;
@@ -143,44 +147,14 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         emit RemoveAcceptedStableCoin(_stableCoin);
     }
 
-    function estimateMintAmountWithETH(uint256 amount)
-        external
-        returns (uint256)
-    {
-        uint256 estimatedSwap = swap.estimateETHSwap(amount, swapToToken);
-
-        uint256 estimatedCoinAmountSwap = _fromCoinAmount(
-            estimatedSwap,
-            IERC20Extended(swapToToken)
-        );
-
-        uint256 amountToMint = _getTokenAmount(estimatedCoinAmountSwap);
-        uint256 mintingFee = bustadToken.calculateMintingFee(amountToMint);
-
-        return amountToMint - mintingFee;
-    }
-
-    function estimateMintAmountWithStableCoin(uint256 amount)
-        external
-        view
-        returns (uint256)
-    {
-        uint256 amountToMint = _getTokenAmount(amount);
-        uint256 mintingFee = bustadToken.calculateMintingFee(amountToMint);
-        return amountToMint - mintingFee;
-    }
-
-    function setSwapToToken(address _bustadToken)
-        external
-        onlyRole(MAINTAINER_ROLE)
-    {
-        swapToToken = _bustadToken;
-    }
-
     function isAcceptableStableCoin(address coin) external view returns (bool) {
         return acceptedStableCoins[coin];
     }
- 
+
+    function setBustadWallet(address payable walletAddress) external {
+        bustadWallet = walletAddress;
+    }
+
     function _preValidatePurchase(address beneficiary, uint256 weiAmount)
         internal
         view
@@ -191,27 +165,10 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
             "Crowdsale: beneficiary is the zero address"
         );
         require(weiAmount != 0, "Crowdsale: weiAmount is 0");
-        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
+        this;
     }
 
-    function _forwardAndMint(
-        uint256 coinAmount,
-        uint256 amount18based,
-        address beneficiary,
-        IERC20 withToken
-    ) private {
-        _forwardToken(coinAmount, withToken);
-
-        uint256 amountToMint = _getTokenAmount(amount18based);
-
-        _mint(beneficiary, amountToMint);
-
-        weiRaised = weiRaised.add(amount18based);
-
-        emit TokensMinted(_msgSender(), amount18based, amountToMint);        
-    }
-
-    /**     
+    /**
      * @param weiAmount Value in wei to be converted into amountToMint
      * @return Number of amountToMint that can be purchased with the specified _weiAmount
      */
@@ -219,20 +176,9 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         return weiAmount.mul(rate) / 1 ether;
     }
 
-    /**
-     * @dev Determines how ETH is stored/forwarded on purchases.
-     */
-    function _forwardToken(uint256 amount, IERC20 tokenToForward) private {
-        tokenToForward.transfer(address(wallet), amount);
-    }
-
     function _mint(address to, uint256 tokenAmount) private {
         bustadToken.mint(to, tokenAmount);
     }
-
-    function _swapETH(uint256 amount) private returns (uint256) {
-        return swap.swapETH{value: amount}(swapToToken);
-    }    
 
     function _initializeAcceptableStableCoin(address[] memory addresses)
         private
