@@ -16,7 +16,7 @@ contract Treasury is Ownable {
     uint256 public withdrawDelay;
     uint256 public currentSnapshotId;
     address public currentReleaseFundContractAddress;
-    uint256 public maxReleaseAmount;    
+    uint256 public maxReleaseAmount;
 
     event Release(
         uint256 amount,

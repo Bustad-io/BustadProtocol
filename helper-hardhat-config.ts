@@ -2,7 +2,7 @@ import { TokenFeeType } from "./constants/TokenFeeType";
 
 export const TOTAL_GOV_TOKEN_AMOUNT = 300_000_000;
 export const TOTAL_GOV_TOKEN_DISTRIBUTION_AMOUNT = 100_000_000;
-export const MOCK_USER_GOV_SHARE = 0.1;
+export const TEST_USER_GOV_TOKEN_AMOUNT = 15000;
 
 export const INITIAL_TOKEN_AMOUNT = 1;
 export const TOKEN_NAME = "Bustad Coin";
@@ -14,7 +14,7 @@ export const RELEASE_FUND_BALANCE = 750_000;
 export const TREASURY_BALANCE = 750_000;
 export const TREASURY_MAX_RELEASE_AMOUNT = 100_000;
 
-export const TOKEN_MINTING_FEE = 0.03;
+export const TOKEN_MINTING_FEE = 0;
 export const TOKEN_TRANSFER_FEE = 0;
 export const TOKEN_MINTING_TYPE = TokenFeeType.Percentage;
 export const TOKEN_TRANSFER_TYPE = TokenFeeType.Fixed;

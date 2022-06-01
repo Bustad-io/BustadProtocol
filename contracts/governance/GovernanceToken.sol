@@ -15,6 +15,7 @@ contract GovernanceToken is
     AccessControl
 {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant SNAPSHOTER_ROLE = keccak256("SNAPSHOTER_ROLE");
 
     constructor(
         uint256 initialSupply,
@@ -25,7 +26,7 @@ contract GovernanceToken is
         _mint(msg.sender, initialSupply);
     }
 
-    function snapshot() external returns (uint256) {
+    function snapshot() external onlyRole(SNAPSHOTER_ROLE) returns (uint256) {
         return _snapshot();
     }
 

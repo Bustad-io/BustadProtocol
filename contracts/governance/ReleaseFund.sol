@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 import "./GovernanceToken.sol";
 import "../BustadToken.sol";
 
-contract ReleaseFund {
+contract ReleaseFund is Ownable {
     uint256 public govTokenSnapshopId;
     uint256 public releasedAmount;
-    uint256 public refundTime;
-    address public parentTreasury;
+    uint256 public refundTime;    
     uint256 public withdrawAllowedAt;
 
     GovernanceToken public govToken;
@@ -31,7 +32,7 @@ contract ReleaseFund {
         BustadToken _bustadToken,
         uint256 _refundTime,
         uint256 _withdrawAllowedAt
-    ) external {
+    ) external onlyOwner {
         require(
             _bustadToken.balanceOf(address(this)) > 0,
             "Has not received funds yet"
@@ -41,8 +42,7 @@ contract ReleaseFund {
         govTokenSnapshopId = _govTokenSnapshopId;
         govToken = _govToken;
         bustadToken = _bustadToken;
-        refundTime = _refundTime;
-        parentTreasury = msg.sender;
+        refundTime = _refundTime;        
         withdrawAllowedAt = _withdrawAllowedAt;
 
         emit ReleaseFundInitialised(
@@ -84,11 +84,11 @@ contract ReleaseFund {
         require(block.number > refundTime, "Refund time not reached");
         require(
             bustadToken.balanceOf(address(this)) > 0,
-            "Nothing more to refund"
+            "Nothing to refund"
         );
 
         uint256 remainingBalance = bustadToken.balanceOf(address(this));
-        bustadToken.transfer(parentTreasury, remainingBalance);
+        bustadToken.transfer(owner(), remainingBalance);
 
         emit RefundRemaining(remainingBalance);
     }
