@@ -35,7 +35,6 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
     uint256 public rate;
 
     event TokensMinted(address indexed purchaser, uint256 amount);
-
     event AddAcceptedStableCoin(address indexed coinAddress);
     event RemoveAcceptedStableCoin(address indexed coinAddress);
 

@@ -11,7 +11,6 @@ export const TOKEN_DECIMALS = 18;
 
 export const RELEASE_FUND_BALANCE = 750_000;
 
-export const TIMELOCK_DELAY = 3600;
 export const TREASURY_BALANCE = 750_000;
 export const TREASURY_MAX_RELEASE_AMOUNT = 100_000;
 
