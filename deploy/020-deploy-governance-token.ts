@@ -12,7 +12,7 @@ const deployGovernanceToken: DeployFunction = async function (
   const { admin } = await getNamedAccounts();
   await deploy("GovernanceToken", {
     from: admin,
-    args: [fromEther(TOTAL_GOV_TOKEN_AMOUNT)],
+    args: [fromEther(TOTAL_GOV_TOKEN_AMOUNT), "BustadGovernance", "GOV"],
     log: true,
     waitConfirmations: 1,
   });
