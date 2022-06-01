@@ -151,7 +151,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         return acceptedStableCoins[coin];
     }
 
-    function setBustadWallet(address payable walletAddress) external {
+    function setBustadWallet(address payable walletAddress) external onlyRole(MAINTAINER_ROLE){
         bustadWallet = walletAddress;
     }
 
