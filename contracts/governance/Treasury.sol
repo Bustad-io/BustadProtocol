@@ -26,7 +26,7 @@ contract Treasury is Ownable {
         uint256 refundDelay,
         uint256 withdrawDelay,
         address releaseFundContractAddress
-    );    
+    );
 
     constructor(
         address _releaseFundMasterContract,
@@ -46,14 +46,14 @@ contract Treasury is Ownable {
         maxReleaseAmount = _maxReleaseAmout;
     }
 
-    function release(uint256 amount) external onlyOwner {        
+    function release(uint256 amount) external onlyOwner {
         require(amount <= maxReleaseAmount, "Amount exceeded limit");
         require(
             amount <= bustadToken.balanceOf(address(this)),
             "Amount exceeded balance"
         );
 
-        uint256 snapshotId = governanceToken.snapshot();        
+        uint256 snapshotId = governanceToken.snapshot();
 
         address cloneAddress = Clones.cloneDeterministic(
             releaseFundMasterContract,
@@ -74,11 +74,11 @@ contract Treasury is Ownable {
         );
 
         currentSnapshotId = snapshotId;
-        currentReleaseFundContractAddress = cloneAddress;        
+        currentReleaseFundContractAddress = cloneAddress;
 
         bustadToken.transfer(cloneAddress, amount);
-        
-        releaseFunds.push(rFund);        
+
+        releaseFunds.push(rFund);
 
         emit Release(
             amount,
@@ -87,7 +87,7 @@ contract Treasury is Ownable {
             withdrawDelay,
             cloneAddress
         );
-    }    
+    }
 
     function setRefundTime(uint256 _refundDelay) external onlyOwner {
         refundDelay = _refundDelay;
@@ -99,7 +99,7 @@ contract Treasury is Ownable {
 
     function setMaxReleaseAmount(uint256 _maxReleaseAmount) external onlyOwner {
         maxReleaseAmount = _maxReleaseAmount;
-    }    
+    }
 
     function getReleaseFundContractAddress(uint256 snapshopId)
         public

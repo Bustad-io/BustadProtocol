@@ -42,9 +42,9 @@ contract BustadToken is ERC20, ERC20Burnable, AccessControl, WithFee, Pausable {
         uint256 mintingFee = _calculateMintingFee(amount);
         amount -= mintingFee;
 
-        if(mintingFee > 0) {
+        if (mintingFee > 0) {
             _mint(feeCollector, mintingFee);
-        }   
+        }
 
         _mint(to, amount);
     }
@@ -59,10 +59,10 @@ contract BustadToken is ERC20, ERC20Burnable, AccessControl, WithFee, Pausable {
 
         amount -= transferFee;
 
-        if(transferFee > 0) {
+        if (transferFee > 0) {
             _transfer(owner, feeCollector, transferFee);
         }
-        
+
         _transfer(owner, to, amount);
 
         return true;

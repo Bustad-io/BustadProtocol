@@ -30,7 +30,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
     bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    mapping(address => bool) acceptedStableCoins;
+    mapping(address => bool) public acceptedStableCoins;
 
     uint256 public rate;
 
@@ -71,16 +71,16 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
 
         int256 ethUSDPrice = getLatestETHPrice();
 
-        uint256 ethAmountInUSD = (uint256(ethUSDPrice) * msg.value) / 1e18;        
+        uint256 ethAmountInUSD = (uint256(ethUSDPrice) * msg.value) / 1e18;
 
         (bool success, ) = bustadWallet.call{value: msg.value}("");
 
         if (success) {
-            uint256 amountToMint = _getTokenAmount(ethAmountInUSD);            
+            uint256 amountToMint = _getTokenAmount(ethAmountInUSD);
             _mint(buyer, amountToMint);
             emit TokensMinted(_msgSender(), amountToMint);
         } else {
-            revert("Could not send ether to bustadWallet");
+            revert("Could not send to bustadWallet");
         }
     }
 
@@ -150,7 +150,10 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         return acceptedStableCoins[coin];
     }
 
-    function setBustadWallet(address payable walletAddress) external onlyRole(MAINTAINER_ROLE){
+    function setBustadWallet(address payable walletAddress)
+        external
+        onlyRole(MAINTAINER_ROLE)
+    {
         bustadWallet = walletAddress;
     }
 
@@ -161,7 +164,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
     {
         require(
             beneficiary != address(0),
-            "Crowdsale: beneficiary is the zero address"
+            "Beneficiary is the zero address"
         );
         require(weiAmount != 0, "Crowdsale: weiAmount is 0");
         this;

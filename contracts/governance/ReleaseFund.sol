@@ -7,7 +7,7 @@ import "../BustadToken.sol";
 contract ReleaseFund {
     uint256 public govTokenSnapshopId;
     uint256 public releasedAmount;
-    uint256 public refundAllowedAt;    
+    uint256 public refundAllowedAt;
     uint256 public withdrawAllowedAt;
     address public parentTreasury;
 
@@ -34,10 +34,7 @@ contract ReleaseFund {
         uint256 _refundAllowedAt,
         uint256 _withdrawAllowedAt
     ) external {
-        require(
-            isInitialized == false,
-            "Has already been initialized"
-        );        
+        require(isInitialized == false, "Has already been initialized");
 
         isInitialized = true;
 
@@ -45,7 +42,7 @@ contract ReleaseFund {
         govTokenSnapshopId = _govTokenSnapshopId;
         govToken = _govToken;
         bustadToken = _bustadToken;
-        refundAllowedAt = _refundAllowedAt;        
+        refundAllowedAt = _refundAllowedAt;
         withdrawAllowedAt = _withdrawAllowedAt;
         parentTreasury = msg.sender;
 
@@ -86,10 +83,7 @@ contract ReleaseFund {
 
     function refundRemaining() external {
         require(block.number > refundAllowedAt, "Refund time not reached");
-        require(
-            bustadToken.balanceOf(address(this)) > 0,
-            "Nothing to refund"
-        );
+        require(bustadToken.balanceOf(address(this)) > 0, "Nothing to refund");
 
         uint256 remainingBalance = bustadToken.balanceOf(address(this));
         bustadToken.transfer(parentTreasury, remainingBalance);

@@ -15,7 +15,7 @@ contract GovernanceDistributor is AccessControl {
     GovernanceToken public govToken;
 
     uint256 public decayThreshold;
-    uint256 public amountLeftToDistribute;    
+    uint256 public amountLeftToDistribute;
     uint256 public ratioDecreaseInterval;
     uint256 public bustadToGovDistributionRatio;
     uint256 public distributionThreshold;
@@ -25,9 +25,9 @@ contract GovernanceDistributor is AccessControl {
     bytes32 public constant CROWDSALE_ROLE = keccak256("CROWDSALE_ROLE");
 
     constructor(GovernanceToken _govToken, uint256 initialDistributionRatio) {
-        bustadToGovDistributionRatio = initialDistributionRatio;        
+        bustadToGovDistributionRatio = initialDistributionRatio;
         ratioDecreaseInterval = 90 days;
-        govToken = _govToken;        
+        govToken = _govToken;
         distributionThreshold = 50_000_000 * 1e18;
         distributionThresholdCounter = 0;
 
@@ -38,7 +38,7 @@ contract GovernanceDistributor is AccessControl {
         external
         onlyRole(CROWDSALE_ROLE)
     {
-        if (amountLeftToDistribute == 0) return;        
+        if (amountLeftToDistribute == 0) return;
 
         uint256 govTokenShare = getGovTokenShare(bustadAmountBought);
 
@@ -46,8 +46,8 @@ contract GovernanceDistributor is AccessControl {
         userGovTokenShareMapping[userAddress] += govTokenShare;
 
         distributionThresholdCounter += bustadAmountBought;
-        
-        if (distributionThresholdCounter >= distributionThreshold) {        
+
+        if (distributionThresholdCounter >= distributionThreshold) {
             bustadToGovDistributionRatio /= 2;
             distributionThresholdCounter -= distributionThreshold;
         }
@@ -55,7 +55,7 @@ contract GovernanceDistributor is AccessControl {
 
     function withdraw() external {
         address receiver = msg.sender;
-        uint256 govTokenShare = userGovTokenShareMapping[receiver];        
+        uint256 govTokenShare = userGovTokenShareMapping[receiver];
 
         require(
             govToken.balanceOf(address(this)) > 0,
@@ -79,7 +79,7 @@ contract GovernanceDistributor is AccessControl {
         external
         view
         returns (uint256)
-    {        
+    {
         return userGovTokenShareMapping[_userAddress];
     }
 
@@ -113,6 +113,7 @@ contract GovernanceDistributor is AccessControl {
         view
         returns (uint256)
     {
-        return (bustadAmountBought.mul(bustadToGovDistributionRatio)).div(1 ether);
+        return
+            (bustadAmountBought.mul(bustadToGovDistributionRatio)).div(1 ether);
     }
 }

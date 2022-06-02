@@ -4,8 +4,9 @@ pragma solidity ^0.8.9;
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 contract PriceFeedTest is AggregatorV3Interface {
-    int _ethPrice;
-    constructor(int ethPrice) {
+    int256 public _ethPrice;
+
+    constructor(int256 ethPrice) {
         _ethPrice = ethPrice;
     }
 
