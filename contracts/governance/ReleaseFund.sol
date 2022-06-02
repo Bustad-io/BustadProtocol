@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-
 import "./GovernanceToken.sol";
 import "../BustadToken.sol";
 
-contract ReleaseFund is Ownable {
+contract ReleaseFund {
     uint256 public govTokenSnapshopId;
     uint256 public releasedAmount;
-    uint256 public refundTime;    
+    uint256 public refundAllowedAt;    
     uint256 public withdrawAllowedAt;
+    address public parentTreasury;
+
+    bool public isInitialized = false;
 
     GovernanceToken public govToken;
     BustadToken public bustadToken;
@@ -22,7 +23,7 @@ contract ReleaseFund is Ownable {
     event ReleaseFundInitialised(
         uint256 amount,
         uint256 snapshotId,
-        uint256 refundTime,
+        uint256 refundAllowedAt,
         uint256 withdrawAllowedAt
     );
 
@@ -30,25 +31,28 @@ contract ReleaseFund is Ownable {
         uint256 _govTokenSnapshopId,
         GovernanceToken _govToken,
         BustadToken _bustadToken,
-        uint256 _refundTime,
+        uint256 _refundAllowedAt,
         uint256 _withdrawAllowedAt
-    ) external onlyOwner {
+    ) external {
         require(
-            _bustadToken.balanceOf(address(this)) > 0,
-            "Has not received funds yet"
-        );
+            isInitialized == false,
+            "Has already been initialized"
+        );        
+
+        isInitialized = true;
 
         releasedAmount = _bustadToken.balanceOf(address(this));
         govTokenSnapshopId = _govTokenSnapshopId;
         govToken = _govToken;
         bustadToken = _bustadToken;
-        refundTime = _refundTime;        
+        refundAllowedAt = _refundAllowedAt;        
         withdrawAllowedAt = _withdrawAllowedAt;
+        parentTreasury = msg.sender;
 
         emit ReleaseFundInitialised(
             releasedAmount,
             govTokenSnapshopId,
-            refundTime,
+            refundAllowedAt,
             withdrawAllowedAt
         );
     }
@@ -81,14 +85,14 @@ contract ReleaseFund is Ownable {
     }
 
     function refundRemaining() external {
-        require(block.number > refundTime, "Refund time not reached");
+        require(block.number > refundAllowedAt, "Refund time not reached");
         require(
             bustadToken.balanceOf(address(this)) > 0,
             "Nothing to refund"
         );
 
         uint256 remainingBalance = bustadToken.balanceOf(address(this));
-        bustadToken.transfer(owner(), remainingBalance);
+        bustadToken.transfer(parentTreasury, remainingBalance);
 
         emit RefundRemaining(remainingBalance);
     }

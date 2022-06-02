@@ -7,6 +7,8 @@ import "./GovernanceToken.sol";
 import "../BustadToken.sol";
 import "./ReleaseFund.sol";
 
+import "hardhat/console.sol";
+
 contract Treasury is Ownable {
     ReleaseFund[] public releaseFunds;
     address public releaseFundMasterContract;
@@ -51,8 +53,7 @@ contract Treasury is Ownable {
             "Amount exceeded balance"
         );
 
-        uint256 snapshotId = governanceToken.snapshot();
-        uint256 withdrawAllowedAt = block.number + withdrawDelay;
+        uint256 snapshotId = governanceToken.snapshot();        
 
         address cloneAddress = Clones.cloneDeterministic(
             releaseFundMasterContract,
@@ -61,19 +62,23 @@ contract Treasury is Ownable {
 
         ReleaseFund rFund = ReleaseFund(cloneAddress);
 
-        bustadToken.transfer(cloneAddress, amount);
+        uint256 withdrawAllowedAt = block.number + withdrawDelay;
+        uint256 refundAllowedAt = block.number + refundDelay;
 
         rFund.init(
             snapshotId,
             governanceToken,
             bustadToken,
-            refundDelay,
+            refundAllowedAt,
             withdrawAllowedAt
         );
-        releaseFunds.push(rFund);
 
         currentSnapshotId = snapshotId;
-        currentReleaseFundContractAddress = cloneAddress;
+        currentReleaseFundContractAddress = cloneAddress;        
+
+        bustadToken.transfer(cloneAddress, amount);
+        
+        releaseFunds.push(rFund);        
 
         emit Release(
             amount,
