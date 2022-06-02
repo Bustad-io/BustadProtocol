@@ -55,7 +55,7 @@ const config: HardhatUserConfig = {
       forking: {
         url: process.env.FORK_URI !== undefined ? process.env.FORK_URI : "",
         blockNumber: 14882800,
-        // blockNumber: 14447653,
+        enabled: false
       },
       accounts: accounts.map((acc) => ({
         privateKey: acc,
