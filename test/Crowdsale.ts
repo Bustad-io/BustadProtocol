@@ -1,12 +1,12 @@
 import { expect } from "chai";
 import { deployments, ethers, getNamedAccounts } from "hardhat";
 import { BustadToken, Crowdsale } from "../typechain";
-import { fromEther, toEther } from "../utils/format";
+import { fromEther, parseToNumber, toEther } from "../utils/format";
 import { generateWallet, resetTokenBalance } from "./utils/utils";
 import { DaiTest } from '../typechain/DaiTest.d';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { Wallet } from "ethers";
-import { ETH_PRICE, TOKEN_MINTING_FEE } from "../helper-hardhat-config";
+import { ETH_PRICE } from "../helper-hardhat-config";
 
 describe("Crowdsale", () => {
   let bustadToken: BustadToken;  
@@ -55,7 +55,7 @@ describe("Crowdsale", () => {
 
     it("Buyer should receive correct amount of tokens", async () => {      
       const balance = await bustadToken.balanceOf(userWallet.address);
-      expect(Number(toEther(balance))).to.be.equal(1952.41 - (1952.41 * TOKEN_MINTING_FEE));
+      expect(Number(toEther(balance))).to.be.equal(ETH_PRICE);
     });
 
     it("Bustad wallet should receive correct amount of ether", async () => {      
@@ -67,6 +67,8 @@ describe("Crowdsale", () => {
   describe("Buy with stable coin", () => {
     let userWallet: Wallet;
     let bustadWallet: Wallet;
+
+    const buyAmount = 1000;
     
     before(async () => {          
       userWallet = await generateWallet(ethers.provider, 5);      
@@ -77,25 +79,27 @@ describe("Crowdsale", () => {
       const _dai = await dai.connect(userWallet);
       const _crowdsale = await crowdsale.connect(userWallet);
 
-      await _dai.mint(userWallet.address, fromEther(1_000));        
-      await _dai.approve(_crowdsale.address, fromEther(1_000));      
-      await _crowdsale.buyWithStableCoin(fromEther(1_000), _dai.address);
+      await _dai.mint(userWallet.address, fromEther(buyAmount));        
+      await _dai.approve(_crowdsale.address, fromEther(buyAmount));      
+      await _crowdsale.buyWithStableCoin(fromEther(buyAmount), _dai.address);
     });
 
     it("Buyer should receive correct amount of tokens", async () => {            
       const balance = await bustadToken.balanceOf(userWallet.address);
-      expect(Number(toEther(balance))).to.equal(970);
+      expect(Number(toEther(balance))).to.equal(buyAmount);
     });
 
     it("Bustad wallet should receive correct amount of dai", async () => {      
       const daiBalance = await dai.balanceOf(bustadWallet.address);
-      expect(Number(toEther(daiBalance))).to.equal(1_000);
+      expect(Number(toEther(daiBalance))).to.equal(buyAmount);
     });
   });
 
   describe("Rate", () => {
     let userWallet: Wallet;
     const newRate = .1;
+
+    const buyAmount = 1000;
 
     before(async () => {      
       await crowdsale.setRate(fromEther(newRate));
@@ -109,7 +113,7 @@ describe("Crowdsale", () => {
       });
 
       const balance = await bustadToken.balanceOf(userWallet.address);    
-      expect(Number(toEther(balance)).toString()).to.be.equal(Number((ETH_PRICE - (ETH_PRICE * TOKEN_MINTING_FEE)) * newRate).toPrecision(8).toString());
+      expect(parseToNumber(balance)).to.be.closeTo(Number(ETH_PRICE * newRate), 0.001);
     });
     
 
@@ -119,13 +123,13 @@ describe("Crowdsale", () => {
 
       await resetTokenBalance(userWallet, bustadToken.address);
 
-      await _dai.mint(userWallet.address, fromEther(1_000));        
-      await _dai.approve(_crowdsale.address, fromEther(1_000));              
+      await _dai.mint(userWallet.address, fromEther(buyAmount));        
+      await _dai.approve(_crowdsale.address, fromEther(buyAmount));              
       
-      await _crowdsale.buyWithStableCoin(fromEther(1_000), dai.address);
+      await _crowdsale.buyWithStableCoin(fromEther(buyAmount), dai.address);
 
       const balance = await bustadToken.balanceOf(userWallet.address);
-      expect(Number(toEther(balance))).to.equal(97);
+      expect(Number(toEther(balance))).to.equal(buyAmount * newRate);
     });
   });
 
