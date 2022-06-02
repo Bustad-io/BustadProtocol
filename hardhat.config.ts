@@ -23,7 +23,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 const accounts = [
   process.env.PERSONAL_PRIVATE_KEY || "",
-  process.env.HORDE_PRIVATE_KEY || "",
+  process.env.BUSTAD_PRIVATE_KEY || "",
   process.env.MOCK_USER_PRIVATE_KEY || "",
 ];
 
@@ -54,7 +54,7 @@ const config: HardhatUserConfig = {
       chainId: 1337,
       forking: {
         url: process.env.FORK_URI !== undefined ? process.env.FORK_URI : "",
-        blockNumber: 14306438,
+        blockNumber: 14882800,
         // blockNumber: 14447653,
       },
       accounts: accounts.map((acc) => ({
@@ -74,7 +74,7 @@ const config: HardhatUserConfig = {
     admin: {
       default: 0,
     },
-    horde: {
+    bustad: {
       default: 1,
     },
     mockUser: {

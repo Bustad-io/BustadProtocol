@@ -11,7 +11,7 @@ const deployCrowdsale: DeployFunction = async function (
   const { getNamedAccounts, deployments, network } = hre;
 
   const { deploy, get } = deployments;
-  const { admin, horde } = await getNamedAccounts();
+  const { admin, bustad } = await getNamedAccounts();
 
   const bustadToken = await ethers.getContract("BustadToken", admin);  
   const treasury = await get("Treasury");
@@ -23,7 +23,7 @@ const deployCrowdsale: DeployFunction = async function (
     await deploy("Crowdsale", {
       from: admin,
       args: [
-        horde,        
+        bustad,        
         bustadToken.address,        
         ethers.constants.WeiPerEther,
         [daiContract, usdcContract],
@@ -49,7 +49,7 @@ const deployCrowdsale: DeployFunction = async function (
     await deploy("Crowdsale", {
       from: admin,
       args: [
-        horde,                
+        bustad,                
         bustadToken.address,        
         ethers.constants.WeiPerEther,
         [daiTest.address],

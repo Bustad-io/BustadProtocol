@@ -14,10 +14,10 @@ describe("Crowdsale", () => {
   let crowdsale: Crowdsale;
 
   let admin: SignerWithAddress
-  let horde: SignerWithAddress
+  let bustad: SignerWithAddress
 
   before(async () => {
-    [admin, horde] = await ethers.getSigners();
+    [admin, bustad] = await ethers.getSigners();
     await deployments.fixture();        
     
     bustadToken = <BustadToken> await ethers.getContract("BustadToken", admin.address);
@@ -33,8 +33,8 @@ describe("Crowdsale", () => {
       expect(await crowdsale.bustadToken()).to.equal(bustadToken.address);
     });
     it("Should have correct wallet", async () => {
-      const { horde } = await getNamedAccounts();
-      expect(await crowdsale.bustadWallet()).to.equal(horde);
+      const { bustad } = await getNamedAccounts();
+      expect(await crowdsale.bustadWallet()).to.equal(bustad);
     });
   });
 
