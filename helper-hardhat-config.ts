@@ -14,8 +14,6 @@ export const RELEASE_FUND_BALANCE = 750_000;
 export const TREASURY_BALANCE = 750_000;
 export const TREASURY_MAX_RELEASE_AMOUNT = 100_000;
 
-export const TOKEN_MINTING_FEE = 0;
-export const TOKEN_TRANSFER_FEE = 0;
 export const TOKEN_MINTING_TYPE = TokenFeeType.Percentage;
 export const TOKEN_TRANSFER_TYPE = TokenFeeType.Fixed;
 

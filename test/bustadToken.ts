@@ -1,11 +1,9 @@
 import { expect } from "chai";
 import { Wallet } from "ethers";
 import { ethers, deployments, getNamedAccounts } from "hardhat";
-import {
-  TOKEN_MINTING_FEE,
+import {  
   TOKEN_NAME,
-  TOKEN_SYMBOL,
-  TOKEN_TRANSFER_FEE,
+  TOKEN_SYMBOL,  
   INITIAL_TOKEN_AMOUNT,
   TOKEN_DECIMALS,
 } from "../helper-hardhat-config";
@@ -53,24 +51,18 @@ describe("BustadToken", function () {
 
       await bustadToken.setFeeCollector(feeCollector.address);
     });
-    it("Should mint correct amount to user and feeCollector", async () => {
+    it("Should mint correct amount to user", async () => {
       await bustadToken.mint(userWallet.address, fromEther(1));
 
       const userBalance = await bustadToken.balanceOf(userWallet.address);
-      expect(userBalance).to.equal(fromEther(1 - TOKEN_MINTING_FEE));
-
-      const feeCollectorbalance = await bustadToken.balanceOf(feeCollector.address);
-      expect(feeCollectorbalance).to.equal(fromEther(TOKEN_MINTING_FEE));
+      expect(userBalance).to.equal(fromEther(1));      
     });
 
-    it("Should transfer correct amount to user and feeCollector", async () => {
+    it("Should transfer correct amount to user", async () => {
       await bustadToken.transfer(userWallet.address, fromEther(1));
 
       const userBalance = await bustadToken.balanceOf(userWallet.address);
-      expect(userBalance).to.equal(fromEther(1 - TOKEN_TRANSFER_FEE));
-
-      const feeCollectorbalance = await bustadToken.balanceOf(feeCollector.address);
-      expect(feeCollectorbalance).to.equal(fromEther(TOKEN_TRANSFER_FEE));
+      expect(userBalance).to.equal(fromEther(1));      
     });
 
     describe("Pause minting", () => {
@@ -99,7 +91,7 @@ describe("BustadToken", function () {
 
     it("Should have correct balance and totalsupply after burning", async () => {
       const userBalanceBeforeBurn = await bustadToken.balanceOf(userWallet.address);
-      expect(userBalanceBeforeBurn).to.equal(fromEther(AMOUNT_TO_MINT - TOKEN_MINTING_FEE));
+      expect(userBalanceBeforeBurn).to.equal(fromEther(AMOUNT_TO_MINT));
 
       const totalsupplyBeforeBurn = await bustadToken.totalSupply();
       expect(totalsupplyBeforeBurn).to.equal(fromEther(INITIAL_TOKEN_AMOUNT + AMOUNT_TO_MINT));
