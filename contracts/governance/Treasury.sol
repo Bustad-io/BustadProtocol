@@ -7,8 +7,6 @@ import "./GovernanceToken.sol";
 import "../BustadToken.sol";
 import "./ReleaseFund.sol";
 
-import "hardhat/console.sol";
-
 contract Treasury is Ownable {
     ReleaseFund[] public releaseFunds;
     address public releaseFundMasterContract;

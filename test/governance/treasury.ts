@@ -19,8 +19,7 @@ describe("Treasury", function () {
     treasury = <Treasury> await ethers.getContract("Treasury", admin.address);
     bustadtoken = <BustadToken> await ethers.getContract("BustadToken", admin.address);
 
-    await bustadtoken.mint(treasury.address, fromEther(RELEASE_AMOUNT));
-    console.log(toEther(await bustadtoken.balanceOf(treasury.address)));
+    await bustadtoken.mint(treasury.address, fromEther(RELEASE_AMOUNT));    
   });
 
   describe("Release", async function () {
