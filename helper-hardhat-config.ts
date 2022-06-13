@@ -1,6 +1,6 @@
 import { TokenFeeType } from "./constants/TokenFeeType";
 
-export const TOTAL_GOV_TOKEN_AMOUNT = 300_000_000;
+export const TOTAL_GOV_TOKEN_AMOUNT = 100_000_000;
 export const TOTAL_GOV_TOKEN_DISTRIBUTION_AMOUNT = 100_000_000;
 export const TEST_USER_GOV_TOKEN_AMOUNT = 15000;
 
@@ -38,6 +38,10 @@ export const EXTERNAL_CONTRACT_ADDRESSES = [
             {
                 network: "localhost",
                 address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+            },
+            {
+                network: "rinkeby",
+                address: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
             }
         ],
     },
@@ -59,56 +63,31 @@ export const EXTERNAL_CONTRACT_ADDRESSES = [
             {
                 network: "ropsten",
                 address: "0x07865c6E87B9F70255377e024ace6630C1Eaa37F"
+            },
+            {
+                network: "rinkeby",
+                address: "0x4DBCdF9B62e891a7cec5A2568C3F4FAF9E8Abe2b"
             }
         ]
     },
     {
-        name: "WETH9",
+        name: "PriceFeed",
         addresses: [
             {
                 network: "mainnet",
-                address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+                address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
             },
             {
                 network: "hardhat",
-                address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+                address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
             },
             {
                 network: "localhost",
-                address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-            },
-            {
-                network: "ropsten",
-                address: "0xc778417E063141139Fce010982780140Aa0cD5Ab"
+                address: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
             },
             {
                 network: "rinkeby",
-                address: "0xc778417E063141139Fce010982780140Aa0cD5Ab"
-            }
-        ]
-    },
-    {
-        name: "Quoter",
-        addresses: [
-            {
-                network: "mainnet",
-                address: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-            },
-            {
-                network: "hardhat",
-                address: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-            },
-            {
-                network: "localhost",
-                address: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-            },
-            {
-                network: "ropsten",
-                address: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
-            },
-            {
-                network: "rinkeby",
-                address: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+                address: "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e"
             }
         ]
     }
