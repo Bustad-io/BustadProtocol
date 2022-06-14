@@ -19,18 +19,26 @@ const deployGovernanceDistributor: DeployFunction = async function (
     waitConfirmations: 1,
   });
 
-  if(!network.live) {
-    const governanceDistributor = await ethers.getContract("GovernanceDistributor", admin);
+  const governanceDistributor = await ethers.getContract("GovernanceDistributor", admin);
 
+  if(!network.live) {    
     await governanceDistributor.grantRole(
       ethers.utils.keccak256(ethers.utils.toUtf8Bytes("CROWDSALE_ROLE")),
       admin
-    );
+    );    
+  } else {
+    const crowdsale = await ethers.getContract("Crowdsale", admin);
+
     await governanceDistributor.grantRole(
-      ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MAINTAINER_ROLE")),
-      admin
-    );
+      ethers.utils.keccak256(ethers.utils.toUtf8Bytes("CROWDSALE_ROLE")),
+      crowdsale.add
+    );    
   }
+
+  await governanceDistributor.grantRole(
+    ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MAINTAINER_ROLE")),
+    admin
+  );
 };
 
 export default deployGovernanceDistributor;

@@ -18,7 +18,8 @@ const deployCrowdsale: DeployFunction = async function (
 
   if(network.live) {
     const daiContract = getExternalContract("DAI", network.name);
-    const usdcContract = getExternalContract("USDC", network.name);    
+    const usdcContract = getExternalContract("USDC", network.name);
+    const priceFeedContract = getExternalContract("PriceFeed", network.name);
 
     await deploy("Crowdsale", {
       from: admin,
@@ -27,7 +28,7 @@ const deployCrowdsale: DeployFunction = async function (
         bustadToken.address,        
         ethers.constants.WeiPerEther,
         [daiContract, usdcContract],
-        "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+        priceFeedContract
       ],
       log: true,
       waitConfirmations: 1,
