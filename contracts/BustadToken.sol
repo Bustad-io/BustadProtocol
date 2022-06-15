@@ -83,19 +83,49 @@ contract BustadToken is ERC20, ERC20Burnable, AccessControl, WithFee, Pausable {
         _unpause();
     }
 
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal override whenNotPaused {
-        super._beforeTokenTransfer(from, to, amount);
-    }
-
     function calculateMintingFee(uint256 amount)
         external
         view
         returns (uint256)
     {
         return _calculateMintingFee(amount);
+    }
+
+    function setMintingFee(uint256 _fee) external onlyRole(MAINTAINER_ROLE) {
+        _setMintingFee(_fee);
+    }
+
+    function setMintingFeeType(FeeType feeType)
+        external
+        onlyRole(MAINTAINER_ROLE)
+    {
+        _setMintingFeeType(feeType);
+    }
+
+    function setTransferFee(uint256 _fee) external onlyRole(MAINTAINER_ROLE) {
+        _setTransferFee(_fee);
+    }
+
+    function setTransferFeeType(FeeType _feeType)
+        external
+        onlyRole(MAINTAINER_ROLE)
+    {
+        _setTransferFeeType(_feeType);
+    }
+
+    function getMintingFee() external view returns (uint256) {
+        return _mintingFee;
+    }
+
+    function getTransferFee() external view returns (uint256) {
+        return _transferFee;
+    }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override whenNotPaused {
+        super._beforeTokenTransfer(from, to, amount);
     }
 }
