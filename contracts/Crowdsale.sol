@@ -11,6 +11,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 import "./BustadToken.sol";
+import "./governance/GovernanceDistributor.sol";
 
 abstract contract IERC20Extended is IERC20 {
     function decimals() public view virtual returns (uint8);
@@ -22,6 +23,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
 
     BustadToken public bustadToken;
     AggregatorV3Interface internal priceFeed;
+    GovernanceDistributor public governanceDistributor;
 
     address payable public bustadWallet;
 
@@ -39,6 +41,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
     constructor(
         address payable _bustadWallet,
         BustadToken _bustadToken,
+        GovernanceDistributor _governanceDistributor,
         uint256 _initialRate,
         address[] memory _acceptedStableCoins,
         address _priceFeedAddress
@@ -52,6 +55,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
 
         bustadWallet = _bustadWallet;
         bustadToken = _bustadToken;
+        governanceDistributor = _governanceDistributor;
         rate = _initialRate;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -76,6 +80,8 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         if (success) {
             uint256 amountToMint = _getTokenAmount(ethAmountInUSD);
             _mint(buyer, amountToMint);
+            governanceDistributor.addBuyer(buyer, amountToMint);
+
             emit TokensMinted(_msgSender(), amountToMint);
         } else {
             revert("Could not send to bustadWallet");
@@ -107,6 +113,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         uint256 amountToMint = _getTokenAmount(amount18based);
 
         _mint(buyer, amountToMint);
+        governanceDistributor.addBuyer(buyer, amountToMint);
 
         emit TokensMinted(_msgSender(), amountToMint);
     }

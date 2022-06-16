@@ -13,10 +13,10 @@ const deployCrowdsale: DeployFunction = async function (
   const { deploy, get } = deployments;
   const { admin, bustad } = await getNamedAccounts();
 
-  const bustadToken = await ethers.getContract("BustadToken", admin);  
-  const treasury = await get("Treasury");
+  const bustadToken = await ethers.getContract("BustadToken", admin);
+  const governanceDistributor = await ethers.getContract("GovernanceDistributor", admin);
 
-  if(network.live) {
+  if (network.live) {
     const daiContract = getExternalContract("DAI", network.name);
     const usdcContract = getExternalContract("USDC", network.name);
     const priceFeedContract = getExternalContract("PriceFeed", network.name);
@@ -24,8 +24,9 @@ const deployCrowdsale: DeployFunction = async function (
     await deploy("Crowdsale", {
       from: admin,
       args: [
-        bustad,        
-        bustadToken.address,        
+        bustad,
+        bustadToken.address,
+        governanceDistributor.address,
         ethers.constants.WeiPerEther,
         [daiContract, usdcContract],
         priceFeedContract
@@ -50,8 +51,9 @@ const deployCrowdsale: DeployFunction = async function (
     await deploy("Crowdsale", {
       from: admin,
       args: [
-        bustad,                
-        bustadToken.address,        
+        bustad,
+        bustadToken.address,
+        governanceDistributor.address,
         ethers.constants.WeiPerEther,
         [daiTest.address],
         priceFeedTest.address
@@ -62,7 +64,7 @@ const deployCrowdsale: DeployFunction = async function (
   }
 
   const crowdsale = await ethers.getContract("Crowdsale", admin);
-  
+
   await bustadToken.grantRole(
     ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MINTER_ROLE")),
     crowdsale.address
@@ -71,6 +73,11 @@ const deployCrowdsale: DeployFunction = async function (
   await crowdsale.grantRole(
     ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MAINTAINER_ROLE")),
     admin
+  );
+
+  await governanceDistributor.grantRole(
+    ethers.utils.keccak256(ethers.utils.toUtf8Bytes("CROWDSALE_ROLE")),
+    crowdsale.address
   );
 };
 
