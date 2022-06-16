@@ -13,8 +13,7 @@ contract GovernanceDistributor is AccessControl {
     mapping(address => uint256) public userGovTokenShareMapping;
 
     GovernanceToken public govToken;
-
-    uint256 public decayThreshold;
+    
     uint256 public amountLeftToDistribute;    
     uint256 public bustadToGovDistributionRatio;
     uint256 public distributionThreshold;
