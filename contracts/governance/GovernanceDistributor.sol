@@ -92,7 +92,7 @@ contract GovernanceDistributor is AccessControl {
         amountLeftToDistribute = _amountLeftToDistribute;
     }
 
-    function setBustadTokenThreshold(uint256 _distributionThreshold)
+    function setDistributionThreshold(uint256 _distributionThreshold)
         external
         onlyRole(MAINTAINER_ROLE)
     {
