@@ -9,9 +9,11 @@ import "./ReleaseFund.sol";
 
 contract Treasury is Ownable {
     ReleaseFund[] public releaseFunds;
+
     address public releaseFundMasterContract;
     BustadToken public bustadToken;
     GovernanceToken public governanceToken;
+
     uint256 public refundDelay;
     uint256 public withdrawDelay;
     uint256 public currentSnapshotId;
@@ -97,6 +99,10 @@ contract Treasury is Ownable {
 
     function setMaxReleaseAmount(uint256 _maxReleaseAmount) external onlyOwner {
         maxReleaseAmount = _maxReleaseAmount;
+    }
+
+    function setReleaseFundMasterContract(address _releaseFundMasterContract) external onlyOwner {
+        releaseFundMasterContract = _releaseFundMasterContract;
     }
 
     function getReleaseFundContractAddress(uint256 snapshopId)
