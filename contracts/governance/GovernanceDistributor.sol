@@ -25,7 +25,7 @@ contract GovernanceDistributor is AccessControl {
     constructor(GovernanceToken _govToken, uint256 initialDistributionRatio) {
         bustadToGovDistributionRatio = initialDistributionRatio;        
         govToken = _govToken;
-        distributionThreshold = 50_000_000 * 1e18;
+        distributionThreshold = 25_000_000 * 1e18;
         distributionThresholdCounter = 0;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
