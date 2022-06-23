@@ -162,6 +162,20 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         bustadWallet = walletAddress;
     }
 
+    function setGovernanceDistributor(GovernanceDistributor _governanceDistributor)
+        external
+        onlyRole(MAINTAINER_ROLE)
+    {
+        governanceDistributor = _governanceDistributor;
+    }
+
+    function setPriceFeed(AggregatorV3Interface _priceFeed)
+        external
+        onlyRole(MAINTAINER_ROLE)
+    {
+        priceFeed = _priceFeed;
+    }
+
     function setBustadToken(BustadToken _token)
         external
         onlyRole(MAINTAINER_ROLE)
