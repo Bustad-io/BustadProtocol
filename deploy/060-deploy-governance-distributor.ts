@@ -31,7 +31,7 @@ const deployGovernanceDistributor: DeployFunction = async function (
 
     await governanceDistributor.grantRole(
       ethers.utils.keccak256(ethers.utils.toUtf8Bytes("CROWDSALE_ROLE")),
-      crowdsale.add
+      crowdsale.address
     );    
   }
 
