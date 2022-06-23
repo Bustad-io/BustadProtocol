@@ -98,6 +98,13 @@ contract GovernanceDistributor is AccessControl {
         distributionThreshold = _distributionThreshold;
     }
 
+    function setDistributionRatio(uint256 _ratio)
+        external
+        onlyRole(MAINTAINER_ROLE)
+    {
+        bustadToGovDistributionRatio = _ratio;
+    }
+
     function getGovTokenShare(uint256 bustadAmountBought)
         private
         view
