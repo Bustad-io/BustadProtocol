@@ -18,4 +18,4 @@ const deployMasterReleaseFund: DeployFunction = async function (
 };
 
 export default deployMasterReleaseFund;
-deployMasterReleaseFund.tags = ["MasterReleaseFund", "Governance"];
+deployMasterReleaseFund.tags = ["ReleaseFund", "Governance"];

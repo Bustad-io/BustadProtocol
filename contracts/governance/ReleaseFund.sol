@@ -34,7 +34,7 @@ contract ReleaseFund {
         uint256 _refundAllowedAt,
         uint256 _withdrawAllowedAt
     ) external {
-        require(isInitialized == false, "Has already been initialized");
+        require(isInitialized == false, "Has already been initialized.");
 
         isInitialized = true;
 
