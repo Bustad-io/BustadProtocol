@@ -13,6 +13,7 @@ contract GovernanceDistributor is AccessControl {
     mapping(address => uint256) public userGovTokenShareMapping;
 
     GovernanceToken public govToken;
+    address public owner;
     
     uint256 public amountLeftToDistribute;    
     uint256 public bustadToGovDistributionRatio;
@@ -28,6 +29,7 @@ contract GovernanceDistributor is AccessControl {
         distributionThreshold = 25_000_000 * 1e18;
         distributionThresholdCounter = 0;
 
+        owner = msg.sender;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
@@ -50,7 +52,7 @@ contract GovernanceDistributor is AccessControl {
         }
     }
 
-    function withdraw() external {
+    function claim() external {
         address receiver = msg.sender;
         uint256 govTokenShare = userGovTokenShareMapping[receiver];
 
@@ -105,6 +107,13 @@ contract GovernanceDistributor is AccessControl {
         bustadToGovDistributionRatio = _ratio;
     }
 
+    function setOwner(address _owner)
+        external
+        onlyRole(MAINTAINER_ROLE)
+    {
+        owner = _owner;
+    }
+
     function getGovTokenShare(uint256 bustadAmountBought)
         private
         view
@@ -112,5 +121,16 @@ contract GovernanceDistributor is AccessControl {
     {
         return
             (bustadAmountBought.mul(bustadToGovDistributionRatio)).div(1 ether);
+    }
+
+    function withdrawFund(uint256 _amount)
+        external
+        onlyRole(MAINTAINER_ROLE)        
+    {
+        require(
+            govToken.balanceOf(address(this)) >= _amount,
+            "Not enough funds to withdraw"
+        );
+        govToken.transfer(owner, _amount);
     }
 }
