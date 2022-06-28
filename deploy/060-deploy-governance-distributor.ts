@@ -26,19 +26,12 @@ const deployGovernanceDistributor: DeployFunction = async function (
       ethers.utils.keccak256(ethers.utils.toUtf8Bytes("CROWDSALE_ROLE")),
       admin
     );    
-  } else {
-    const crowdsale = await ethers.getContract("Crowdsale", admin);
 
     await governanceDistributor.grantRole(
-      ethers.utils.keccak256(ethers.utils.toUtf8Bytes("CROWDSALE_ROLE")),
-      crowdsale.address
-    );    
+      ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MAINTAINER_ROLE")),
+      admin
+    );
   }
-
-  await governanceDistributor.grantRole(
-    ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MAINTAINER_ROLE")),
-    admin
-  );
 };
 
 export default deployGovernanceDistributor;

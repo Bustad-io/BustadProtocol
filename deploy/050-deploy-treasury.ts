@@ -31,14 +31,14 @@ const deployTreasury: DeployFunction = async function (
     waitConfirmations: 1,
   });
 
-  await token.grantRole(
+  /* await token.grantRole(
     ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MAINTAINER_ROLE")),
     admin
   );
 
   await governanceToken.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("SNAPSHOTER_ROLE")),treasury.address);
 
-  await token.setFeeCollector(treasury.address);
+  await token.setFeeCollector(treasury.address); */
 };
 
 export default deployTreasury;

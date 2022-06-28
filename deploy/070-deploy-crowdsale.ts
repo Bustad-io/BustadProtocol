@@ -61,24 +61,24 @@ const deployCrowdsale: DeployFunction = async function (
       log: true,
       waitConfirmations: 1,
     });
+
+    const crowdsale = await ethers.getContract("Crowdsale", admin);
+
+    await bustadToken.grantRole(
+      ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MINTER_ROLE")),
+      crowdsale.address
+    );
+
+    await crowdsale.grantRole(
+      ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MAINTAINER_ROLE")),
+      admin
+    );
+
+    await governanceDistributor.grantRole(
+      ethers.utils.keccak256(ethers.utils.toUtf8Bytes("CROWDSALE_ROLE")),
+      crowdsale.address
+    );
   }
-
-  const crowdsale = await ethers.getContract("Crowdsale", admin);
-
-  await bustadToken.grantRole(
-    ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MINTER_ROLE")),
-    crowdsale.address
-  );
-
-  await crowdsale.grantRole(
-    ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MAINTAINER_ROLE")),
-    admin
-  );
-
-  await governanceDistributor.grantRole(
-    ethers.utils.keccak256(ethers.utils.toUtf8Bytes("CROWDSALE_ROLE")),
-    crowdsale.address
-  );
 };
 
 export default deployCrowdsale;

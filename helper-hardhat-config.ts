@@ -1,12 +1,12 @@
 import { TokenFeeType } from "./constants/TokenFeeType";
 
 export const TOTAL_GOV_TOKEN_AMOUNT = 100_000_000;
-export const TOTAL_GOV_TOKEN_DISTRIBUTION_AMOUNT = 100_000_000;
-export const TEST_USER_GOV_TOKEN_AMOUNT = 15000;
+export const TOTAL_GOV_TOKEN_DISTRIBUTION_AMOUNT = 50_000_000;
+export const TEST_USER_GOV_TOKEN_AMOUNT = 15_000;
 
 export const INITIAL_TOKEN_AMOUNT = 1;
 export const TOKEN_NAME = "Bustad Coin";
-export const TOKEN_SYMBOL = "BUC";
+export const TOKEN_SYMBOL = "BUSC";
 export const TOKEN_DECIMALS = 18;
 export const GOV_TOKEN_NAME = "Eigar";
 export const GOV_TOKEN_SYMBOL = "EIG";
