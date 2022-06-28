@@ -8,6 +8,8 @@ export const INITIAL_TOKEN_AMOUNT = 1;
 export const TOKEN_NAME = "Bustad Coin";
 export const TOKEN_SYMBOL = "BUC";
 export const TOKEN_DECIMALS = 18;
+export const GOV_TOKEN_NAME = "Eigar";
+export const GOV_TOKEN_SYMBOL = "EIG";
 
 export const RELEASE_FUND_BALANCE = 750_000;
 
