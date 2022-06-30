@@ -23,6 +23,10 @@ contract GovernanceDistributor is AccessControl {
     bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
     bytes32 public constant CROWDSALE_ROLE = keccak256("CROWDSALE_ROLE");
 
+    event BuyerAdded(address indexed purchaser, uint256 amount, uint256 govTokenShare);
+    event TokenClaimed(address indexed user, uint256 amount);
+    event RatioLowered(uint256 newRatio, uint256 newDistributionThresholdCounter);
+
     constructor(GovernanceToken _govToken, uint256 initialDistributionRatio) {
         bustadToGovDistributionRatio = initialDistributionRatio;        
         govToken = _govToken;
@@ -49,7 +53,10 @@ contract GovernanceDistributor is AccessControl {
         if (distributionThresholdCounter >= distributionThreshold) {
             bustadToGovDistributionRatio /= 2;
             distributionThresholdCounter -= distributionThreshold;
+
+            emit RatioLowered(bustadToGovDistributionRatio, distributionThresholdCounter);
         }
+        emit BuyerAdded(userAddress, bustadAmountBought, govTokenShare);
     }
 
     function claim() external {
@@ -72,6 +79,8 @@ contract GovernanceDistributor is AccessControl {
         userGovTokenShareMapping[receiver] -= govTokenShare;
 
         govToken.transfer(receiver, govTokenShare);
+
+        emit TokenClaimed(receiver, govTokenShare);
     }
 
     function getGovTokenShareForUser(address _userAddress)

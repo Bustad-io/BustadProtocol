@@ -32,11 +32,9 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
 
     mapping(address => bool) public acceptedStableCoins;
 
-    uint256 public rate;
+    uint256 public rate;    
 
-    event TokensMinted(address indexed purchaser, uint256 amount);
-    event AddAcceptedStableCoin(address indexed coinAddress);
-    event RemoveAcceptedStableCoin(address indexed coinAddress);
+    event TokensMinted(address indexed purchaser, uint256 amount, address indexed tokenAddress);
 
     constructor(
         address payable _bustadWallet,
@@ -82,7 +80,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
             _mint(buyer, amountToMint);
             governanceDistributor.addBuyer(buyer, amountToMint);
 
-            emit TokensMinted(_msgSender(), amountToMint);
+            emit TokensMinted(_msgSender(), amountToMint, address(0));
         } else {
             revert("Could not send to bustadWallet");
         }
@@ -115,7 +113,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         _mint(buyer, amountToMint);
         governanceDistributor.addBuyer(buyer, amountToMint);
 
-        emit TokensMinted(_msgSender(), amountToMint);
+        emit TokensMinted(_msgSender(), amountToMint, stableCoinAddress);
     }
 
     function getLatestETHPrice() public view returns (int256) {
@@ -139,16 +137,14 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         external
         onlyRole(MAINTAINER_ROLE)
     {
-        acceptedStableCoins[_stableCoin] = true;
-        emit AddAcceptedStableCoin(_stableCoin);
+        acceptedStableCoins[_stableCoin] = true;        
     }
 
     function removeAcceptedStableCoin(address _stableCoin)
         external
         onlyRole(MAINTAINER_ROLE)
     {
-        acceptedStableCoins[_stableCoin] = false;
-        emit RemoveAcceptedStableCoin(_stableCoin);
+        acceptedStableCoins[_stableCoin] = false;        
     }
 
     function isAcceptableStableCoin(address coin) external view returns (bool) {
@@ -212,8 +208,7 @@ contract Crowdsale is Context, ReentrancyGuard, AccessControl, Pausable {
         private
     {
         for (uint8 i = 0; i < addresses.length; i++) {
-            acceptedStableCoins[addresses[i]] = true;
-            emit AddAcceptedStableCoin(addresses[i]);
+            acceptedStableCoins[addresses[i]] = true;            
         }
     }
 
