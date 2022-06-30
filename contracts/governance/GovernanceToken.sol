@@ -34,6 +34,10 @@ contract GovernanceToken is
         _mint(to, amount);
     }
 
+    function burn(address account, uint256 amount) external {
+        _burn(account, amount);
+    }
+
     function _beforeTokenTransfer(
         address from,
         address to,
