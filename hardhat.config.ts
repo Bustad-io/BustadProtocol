@@ -38,6 +38,10 @@ const config: HardhatUserConfig = {
     }
   },
   networks: {
+    mainnet: {
+      url: process.env.RINKEBY_URI !== undefined ? process.env.MAINNET_URI : "",
+      accounts: accounts,
+    },
     ropsten: {
       url: process.env.ROPSTEN_URI !== undefined ? process.env.ROPSTEN_URI : "",
       accounts: accounts,
