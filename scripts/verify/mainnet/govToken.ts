@@ -1,4 +1,4 @@
-import GovTokenJSON from '../../deployments/rinkeby/GovernanceToken.json';
+import GovTokenJSON from '../../../deployments/mainnet/GovernanceToken.json';
 const hre = require("hardhat");
 
 export async function main() {

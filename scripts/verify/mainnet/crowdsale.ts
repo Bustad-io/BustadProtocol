@@ -1,4 +1,5 @@
-import CrowdsaleJSON from '../../deployments/rinkeby/Crowdsale.json';
+import CrowdsaleJSON from '../../../deployments/mainnet/Crowdsale.json';
+
 const hre = require("hardhat");
 
 export async function main() {

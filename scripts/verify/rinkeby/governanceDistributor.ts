@@ -1,4 +1,4 @@
-import JSON from '../../deployments/rinkeby/ReleaseFund.json';
+import JSON from '../../../deployments/rinkeby/GovernanceDistributor.json';
 const hre = require("hardhat");
 
 export async function main() {

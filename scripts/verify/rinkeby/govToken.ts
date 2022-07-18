@@ -1,9 +1,9 @@
-import JSON from '../../deployments/rinkeby/GovernanceDistributor.json';
+import GovTokenJSON from '../../../deployments/rinkeby/GovernanceToken.json';
 const hre = require("hardhat");
 
 export async function main() {
-    const ContractAddress = JSON.address;
-    const ConstructorArguments = JSON.args;
+    const ContractAddress = GovTokenJSON.address;
+    const ConstructorArguments = GovTokenJSON.args;
 
     await hre.run("verify:verify", {
         address: ContractAddress,

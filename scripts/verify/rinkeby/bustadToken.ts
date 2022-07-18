@@ -1,4 +1,4 @@
-import BustadTokenJSON from '../../deployments/rinkeby/BustadToken.json';
+import BustadTokenJSON from '../../../deployments/rinkeby/BustadToken.json';
 const hre = require("hardhat");
 
 export async function main() {
