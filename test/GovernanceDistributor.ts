@@ -90,7 +90,7 @@ describe("GovernanceDistributor", () => {
       });
       it("User withdraw correct amount", async () => {                
         const contract = await governanceDistributor.connect(userWallet);      
-        await contract.withdraw();
+        await contract.claim();
   
         const govTokenBalance = await governanceToken.balanceOf(userWallet.address);
         expect(govTokenBalance).to.equal(fromEther(buyAmount * exptectedRatio));      

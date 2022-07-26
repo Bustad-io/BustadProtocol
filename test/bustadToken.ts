@@ -9,6 +9,7 @@ import {
 } from "../helper-hardhat-config";
 import { BustadToken } from "../typechain";
 import { fromEther, toEther } from "../utils/format";
+import { getPermitSignature } from "./utils/helpers";
 import { generateWallet } from "./utils/utils";
 
 describe("BustadToken", function () {
@@ -107,6 +108,30 @@ describe("BustadToken", function () {
       const totalsupplyAfterBurn = await bustadToken.totalSupply();      
       
       expect(Number(toEther(totalsupplyAfterBurn))).to.equal(Number(toEther(totalsupplyBeforeBurn)) - Number(toEther((AMOUNT_TO_BURN))));
+    });
+  })
+
+  describe("Permit", () => {
+    let userWallet: Wallet;
+    const AMOUNT_TO_MINT = 1_000;
+    const AMOUNT_TO_ALLOW = AMOUNT_TO_MINT;
+    beforeEach(async () => {
+      userWallet = await generateWallet(ethers.provider, 10);      
+      await bustadToken.mint(userWallet.address, fromEther(AMOUNT_TO_MINT));      
+    });
+
+    it("Should grant allowance through permit", async () => {
+      const {v, r, s} = await getPermitSignature(
+        userWallet,
+        bustadToken,
+        admin,
+        fromEther(AMOUNT_TO_ALLOW),
+        ethers.constants.MaxUint256
+      );
+      await bustadToken.permit(userWallet.address, admin, fromEther(AMOUNT_TO_ALLOW), ethers.constants.MaxUint256, v, r, s);
+
+      const allowance = await bustadToken.allowance(userWallet.address, admin);      
+      expect(Number(toEther(allowance))).to.equal(Number(AMOUNT_TO_ALLOW));
     });
   })
 });
