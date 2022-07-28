@@ -8,6 +8,7 @@ import {
   TOKEN_SYMBOL,  
   TOKEN_TRANSFER_TYPE,
   INITIAL_TOKEN_AMOUNT,
+  BUSTAD_MULTISIG_ADDRESS,
 } from "../helper-hardhat-config";
 
 const deployToken: DeployFunction = async function (
@@ -25,7 +26,7 @@ const deployToken: DeployFunction = async function (
       fromEther(INITIAL_TOKEN_AMOUNT),
       0,
       0,
-      admin,
+      BUSTAD_MULTISIG_ADDRESS,
       TOKEN_TRANSFER_TYPE,
       TOKEN_MINTING_TYPE,
     ],
