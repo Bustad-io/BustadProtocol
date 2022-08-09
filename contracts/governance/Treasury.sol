@@ -89,22 +89,6 @@ contract Treasury is Ownable {
         );
     }
 
-    function setRefundTime(uint256 _refundDelay) external onlyOwner {
-        refundDelay = _refundDelay;
-    }
-
-    function setWithdrawDelay(uint256 _withdrawDelay) external onlyOwner {
-        withdrawDelay = _withdrawDelay;
-    }
-
-    function setMaxReleaseAmount(uint256 _maxReleaseAmount) external onlyOwner {
-        maxReleaseAmount = _maxReleaseAmount;
-    }
-
-    function setReleaseFundMasterContract(address _releaseFundMasterContract) external onlyOwner {
-        releaseFundMasterContract = _releaseFundMasterContract;
-    }
-
     function getReleaseFundContractAddress(uint256 snapshopId)
         public
         view
@@ -124,4 +108,28 @@ contract Treasury is Ownable {
     {
         return currentReleaseFundContractAddress;
     }
+
+    function setRefundTime(uint256 _refundDelay) external onlyOwner {
+        refundDelay = _refundDelay;
+    }
+
+    function setWithdrawDelay(uint256 _withdrawDelay) external onlyOwner {
+        withdrawDelay = _withdrawDelay;
+    }
+
+    function setMaxReleaseAmount(uint256 _maxReleaseAmount) external onlyOwner {
+        maxReleaseAmount = _maxReleaseAmount;
+    }
+
+    function setReleaseFundMasterContract(address _releaseFundMasterContract) external onlyOwner {
+        releaseFundMasterContract = _releaseFundMasterContract;
+    }    
+
+    function setBustadToken(BustadToken _bustadToken) external onlyOwner {
+        bustadToken = _bustadToken;
+    }
+
+    function setGovernanceToken(GovernanceToken _governanceToken) external onlyOwner {
+        governanceToken = _governanceToken;
+    }    
 }
