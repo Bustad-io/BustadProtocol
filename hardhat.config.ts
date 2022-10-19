@@ -38,6 +38,10 @@ const config: HardhatUserConfig = {
     }
   },
   networks: {
+    goerli: {
+      url: process.env.GOERLI_URL !== undefined ? process.env.GOERLI_URL : "",
+      accounts: accounts,
+    },
     mainnet: {
       url: process.env.RINKEBY_URI !== undefined ? process.env.MAINNET_URI : "",
       accounts: accounts,
