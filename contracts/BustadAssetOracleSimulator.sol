@@ -7,7 +7,7 @@ contract BustadAssetOracleSimulator is AccessControl {
     bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
 
     event AddedRealEstate(
-        string indexed cadastralNumber,
+        string cadastralNumber,
         string note,
         uint256 estimatedValue,
         uint256 purchaseDate,
@@ -32,7 +32,7 @@ contract BustadAssetOracleSimulator is AccessControl {
         uint256 estimatedValue,
         uint256 purchaseDate,
         uint256 share
-    ) external {
+    ) external onlyRole(MAINTAINER_ROLE) {
         emit AddedRealEstate(
             cadastralNumber,
             note,
@@ -48,7 +48,7 @@ contract BustadAssetOracleSimulator is AccessControl {
         uint256 estimatedValue,
         uint256 sellDate,
         uint256 share
-    ) external {
+    ) external onlyRole(MAINTAINER_ROLE) {
         emit RemovedRealEstate(
             cadastralNumber,
             note,
