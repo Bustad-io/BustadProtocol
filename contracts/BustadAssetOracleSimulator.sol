@@ -3,22 +3,23 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract BustadAssetOracleSimulator is AccessControl {
+contract BustadAssetOracleSimulatorV2 is AccessControl {
     bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
 
     event AddedRealEstate(
         string cadastralNumber,
         string note,
-        uint256 estimatedValue,
-        uint256 purchaseDate,
+        uint256 value,
+        uint256 date,
         uint256 share
     );
 
     event RemovedRealEstate(
         string cadastralNumber,
         string note,
-        uint256 estimatedValue,
-        uint256 sellDate,
+        uint256 sellPrice,
+        uint256 purchasePrice,
+        uint256 date,
         uint256 share
     );
 
@@ -29,15 +30,15 @@ contract BustadAssetOracleSimulator is AccessControl {
     function addRealEstate(
         string calldata cadastralNumber,
         string calldata note,
-        uint256 estimatedValue,
-        uint256 purchaseDate,
+        uint256 value,
+        uint256 date,
         uint256 share
     ) external onlyRole(MAINTAINER_ROLE) {
         emit AddedRealEstate(
             cadastralNumber,
             note,
-            estimatedValue,
-            purchaseDate,
+            value,
+            date,
             share
         );
     }
@@ -45,15 +46,17 @@ contract BustadAssetOracleSimulator is AccessControl {
     function removeRealEstate(
         string calldata cadastralNumber,
         string calldata note,
-        uint256 estimatedValue,
-        uint256 sellDate,
+        uint256 sellPrice,
+        uint256 purchasePrice,
+        uint256 date,
         uint256 share
     ) external onlyRole(MAINTAINER_ROLE) {
         emit RemovedRealEstate(
             cadastralNumber,
             note,
-            estimatedValue,
-            sellDate,
+            sellPrice,
+            purchasePrice,
+            date,
             share
         );
     }
