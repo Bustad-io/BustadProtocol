@@ -2,7 +2,7 @@ const hre = require("hardhat");
 
 export async function main() {
   const network = hre.network.name;
-  const { default: ContractJSON } = await import(`../../deployments/${network}/BustadAssetOracleSimulator.json`);
+  const { default: ContractJSON } = await import(`../../deployments/${network}/BustadAssetOracleSimulatorV2.json`);
 
     const contractAddress = ContractJSON.address;
     const contractConstructorArguments = contractAddress.args;
