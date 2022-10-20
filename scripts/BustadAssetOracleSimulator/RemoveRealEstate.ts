@@ -12,7 +12,7 @@ export async function main() {
 
   const contract = await hre.ethers.getContractAt("BustadAssetOracleSimulator", contractAddress, signer);
 
-  const tx = await contract.addRealEstate(randomCadastralNumber(),'', hre.ethers.utils.parseEther(`${getRandomInt(10, 101)}00000`), Date.parse(`2022-${getRandomInt(1, 11)}-${getRandomInt(1, 30)}`), hre.ethers.utils.parseEther(getRandomArbitrary(0.05, 0.21).toString()))
+  const tx = await contract.removeRealEstate('91/4/5/3','', hre.ethers.utils.parseEther('10000000'), Date.parse('2022-06-15'), hre.ethers.utils.parseEther('0.2072493625242084'))
 
   console.log(tx);
 }
