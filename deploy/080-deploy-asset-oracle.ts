@@ -10,7 +10,7 @@ const deployAssetOracle: DeployFunction = async function (
   const { admin } = await getNamedAccounts();
 
 
-  await deploy("BustadAssetOracleSimulator", {
+  await deploy("BustadAssetOracleSimulatorV2", {
     from: admin,
     args: [],
     log: true,
@@ -18,7 +18,7 @@ const deployAssetOracle: DeployFunction = async function (
   });
 
   if(!network.live) {
-    const contract = await ethers.getContract("BustadAssetOracleSimulator", admin);
+    const contract = await ethers.getContract("BustadAssetOracleSimulatorV2", admin);
 
     await contract.grantRole(
       ethers.utils.keccak256(hre.ethers.utils.toUtf8Bytes("MAINTAINER_ROLE")),
