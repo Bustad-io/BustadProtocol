@@ -7,20 +7,31 @@ contract BustadAssetOracleSimulatorV2 is AccessControl {
     bytes32 public constant MAINTAINER_ROLE = keccak256("MAINTAINER_ROLE");
 
     event AddedRealEstate(
-        string cadastralNumber,
-        string note,
+        string indexed cadastralNumber,
+        /* string note, */
         uint256 value,
         uint256 date,
         uint256 share
     );
 
     event RemovedRealEstate(
-        string cadastralNumber,
-        string note,
+        string indexed cadastralNumber,
+        /* string note, */
         uint256 sellPrice,
         uint256 purchasePrice,
         uint256 date,
         uint256 share
+    );
+
+    event UpdateRealEstateValue(
+        string indexed cadastralNumber,
+        /* string note, */
+        uint256 indexed value,
+        uint256 indexed date
+    );
+
+    event TestEvent(
+        string indexed testData        
     );
 
     constructor() {
@@ -29,23 +40,17 @@ contract BustadAssetOracleSimulatorV2 is AccessControl {
 
     function addRealEstate(
         string calldata cadastralNumber,
-        string calldata note,
+        /* string calldata note, */
         uint256 value,
         uint256 date,
         uint256 share
     ) external onlyRole(MAINTAINER_ROLE) {
-        emit AddedRealEstate(
-            cadastralNumber,
-            note,
-            value,
-            date,
-            share
-        );
+        emit AddedRealEstate(cadastralNumber, /* note, */ value, date, share);
     }
 
     function removeRealEstate(
         string calldata cadastralNumber,
-        string calldata note,
+        /* string calldata note, */
         uint256 sellPrice,
         uint256 purchasePrice,
         uint256 date,
@@ -53,11 +58,31 @@ contract BustadAssetOracleSimulatorV2 is AccessControl {
     ) external onlyRole(MAINTAINER_ROLE) {
         emit RemovedRealEstate(
             cadastralNumber,
-            note,
+            /* note, */
             sellPrice,
             purchasePrice,
             date,
             share
         );
+    }
+
+    function updateRealEstateValue(
+        string calldata cadastralNumber,
+        /* string calldata note, */
+        uint256 value,
+        uint256 date
+    ) external onlyRole(MAINTAINER_ROLE) {
+        emit UpdateRealEstateValue(
+            cadastralNumber,
+            /* note, */
+            value,
+            date
+        );
+    }
+
+    function test(
+        string calldata testdata        
+    ) external onlyRole(MAINTAINER_ROLE) {
+        emit TestEvent(testdata);
     }
 }
