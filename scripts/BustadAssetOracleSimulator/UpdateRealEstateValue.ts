@@ -12,7 +12,7 @@ export async function main() {
 
   const contract = await hre.ethers.getContractAt("BustadAssetOracleSimulatorV2", contractAddress, signer);
 
-  const tx = await contract.removeRealEstate('91/4/5/3',/* '', */ hre.ethers.utils.parseEther('10000000'), Date.parse('2022-06-15'), hre.ethers.utils.parseEther('0.2072493625242084'))
+  const tx = await contract.updateRealEstateValue('91/2/9/3', hre.ethers.utils.parseEther('10500000'), Date.parse(`2022-03-01`))
 
   console.log(tx);
 }
