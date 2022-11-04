@@ -38,18 +38,12 @@ const config: HardhatUserConfig = {
     }
   },
   networks: {
+    goerli: {
+      url: process.env.GOERLI_URL !== undefined ? process.env.GOERLI_URL : "",
+      accounts: accounts,
+    },
     mainnet: {
-      url: process.env.RINKEBY_URI !== undefined ? process.env.MAINNET_URI : "",
-      accounts: accounts,
-    },
-    ropsten: {
-      url: process.env.ROPSTEN_URI !== undefined ? process.env.ROPSTEN_URI : "",
-      accounts: accounts,
-      // gas: 2100000,
-      // gasPrice: 8000000000,
-    },
-    rinkeby: {
-      url: process.env.RINKEBY_URI !== undefined ? process.env.RINKEBY_URI : "",
+      url: process.env.MAINNET_URI !== undefined ? process.env.MAINNET_URI : "",
       accounts: accounts,
     },
     localhost: {
