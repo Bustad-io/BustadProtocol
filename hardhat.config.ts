@@ -11,15 +11,20 @@ import "hardhat-deploy";
 
 dotenv.config();
 
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
+task("run-verify", "Verifies smart contract in Etherscan")
+  .addParam("contractname", "Name of the deployed contract")
+  .setAction(async (taskArgs, hre) => {
+    const network = hre.network.name;
+    const { default: ContractJSON } = await import(`./deployments/${network}/${taskArgs.contractname}.json`);
 
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
+    const contractAddress = ContractJSON.address;
+    const contractConstructorArguments = ContractJSON.args;
+
+    await hre.run("verify:verify", {
+      address: contractAddress,
+      constructorArguments: contractConstructorArguments
+    });
+  });
 
 const accounts = [
   process.env.PERSONAL_PRIVATE_KEY || "",
@@ -30,7 +35,7 @@ const accounts = [
 const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.9",
-    settings: {      
+    settings: {
       optimizer: {
         enabled: true,
         runs: 2000
