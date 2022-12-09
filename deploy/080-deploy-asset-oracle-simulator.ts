@@ -29,4 +29,4 @@ const deployAssetOracle: DeployFunction = async function (
 };
 
 export default deployAssetOracle;
-deployAssetOracle.tags = ["AssetOracle"];
+deployAssetOracle.tags = ["AssetOracleSimulator"];
